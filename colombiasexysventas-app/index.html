@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColombiaSexys Ventas</title>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        :root {
+            --primary-color: #3b82f6; /* Tailwind's blue-500 */
+            --secondary-color: #f67280; /* A nice pink */
+            --bg-color: #f1f5f9; /* Tailwind's slate-100 */
+            --card-bg: #ffffff;
+            --text-color: #334155; /* Tailwind's slate-700 */
+            --success-color: #10b981; /* Tailwind's green-500 */
+            --error-color: #ef4444; /* Tailwind's red-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .auth-container {
+            background-color: var(--card-bg);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 20vh;
+        }
+        .auth-container h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+        .auth-container button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .auth-container button:hover {
+            background-color: #2563eb;
+        }
+        .header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-info .fa-user-circle {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+        .user-info h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .user-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        .header button {
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .header button:hover {
+            background-color: #dc2626;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .form-message {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            display: none;
+        }
+        .form-message.success {
+            background-color: #d1fae5;
+            color: var(--success-color);
+        }
+        .form-message.error {
+            background-color: #fee2e2;
+            color: var(--error-color);
+        }
+        .submit-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .submit-button:hover {
+            background-color: #2563eb;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .toggle-switch label {
+            margin: 0;
+            font-weight: 400;
+        }
+        .toggle-switch .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .slider {
+            background-color: var(--error-color);
+        }
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .weekly-records {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .weekly-records h3 {
+            margin-bottom: 0.5rem;
+        }
+        .weekly-records .record-item {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--primary-color);
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .weekly-records .record-item.canceled {
+            border-left: 5px solid var(--error-color);
+            opacity: 0.6;
+        }
+        .weekly-records .record-item .record-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .weekly-records .record-item.canceled .record-value {
+            color: var(--error-color);
+        }
+        .weekly-records .record-item p {
+            margin: 0.5rem 0;
+        }
+        .weekly-records .record-item .record-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+        }
+        .weekly-records .record-item button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Estilos del modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+        }
+
+        /* Estilos para el panel de administración */
+        .admin-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .admin-section h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .admin-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .admin-section ul li {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .admin-section ul li button {
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .admin-section ul li button:hover {
+            background-color: #dc2626;
+        }
+        .edit-user-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+
+        /* Botones de Empleadas para Jefes */
+        .empleada-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .empleada-buttons .empleada-button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .empleada-buttons .empleada-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .empleada-buttons .empleada-button.active {
+            border-color: #334155;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Contenedor de Autenticación -->
+<div id="auth-container" class="auth-container">
+    <h1>Bienvenido</h1>
+    <p>Inicia sesión para continuar.</p>
+    <button id="login-button">
+        <i class="fab fa-google"></i> Iniciar sesión con Google
+    </button>
+</div>
+
+<!-- Contenedor Principal de la Aplicación -->
+<div id="main-container" class="container" style="display: none;">
+    <header class="header">
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+                <h2 id="user-email"></h2>
+                <p>Rol: <span id="user-role"></span></p>
+            </div>
+        </div>
+        <button id="logout-button">Cerrar Sesión</button>
+    </header>
+
+    <!-- Formulario de Registro de Servicio -->
+    <div class="card">
+        <h3 id="form-title">Registro de Servicio</h3>
+
+        <!-- Botones de Empleadas para Jefes -->
+        <div id="empleada-selection" class="form-group" style="display: none;">
+            <label for="empleada-buttons">Selecciona la Empleada</label>
+            <div id="empleada-buttons" class="empleada-buttons">
+                <!-- Los botones de empleadas se generarán aquí por JS -->
+            </div>
+        </div>
+
+        <form id="service-form">
+            <div class="form-group">
+                <label for="horas_servicio">Horas del servicio</label>
+                <input type="number" id="horas_servicio" required min="0" step="0.5">
+            </div>
+            <div class="form-group">
+                <label for="total_servicio">Total del servicio</label>
+                <input type="number" id="total_servicio" required min="0" step="0.01">
+            </div>
+
+            <!-- Sección de Método de Pago -->
+            <div class="form-group">
+                <label>Método de Pago</label>
+                <div style="display: flex; gap: 1rem;">
+                    <label><input type="radio" name="metodo_pago" value="efectivo" checked> Efectivo</label>
+                    <label><input type="radio" name="metodo_pago" value="tarjeta"> Tarjeta</label>
+                    <label><input type="radio" name="metodo_pago" value="mixto"> Mixto</label>
+                </div>
+            </div>
+
+            <div id="pago-tarjeta-container" style="display: none;">
+                <div class="form-group">
+                    <label for="monto_tarjeta">Monto de tarjeta</label>
+                    <input type="number" id="monto_tarjeta" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="banco">Banco de la transacción</label>
+                    <select id="banco">
+                        <option value="">Selecciona un banco</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="pago-mixto-container" style="display: none;">
+                <div class="form-group">
+                    <label for="monto_mixto_tarjeta">Monto de tarjeta</label>
+                    <input type="number" id="monto_mixto_tarjeta" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="monto_mixto_efectivo">Monto de efectivo</label>
+                    <input type="number" id="monto_mixto_efectivo" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="banco_mixto">Banco de la transacción</label>
+                    <select id="banco_mixto">
+                        <option value="">Selecciona un banco</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="extra">Extra</label>
+                <input type="number" id="extra" min="0" step="0.01">
+            </div>
+
+            <div id="extra-banco-container" class="form-group" style="display: none;">
+                <label for="extra_banco">Banco del extra</label>
+                <select id="extra_banco">
+                    <option value="">Selecciona un banco</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lugar">Lugar</label>
+                <select id="lugar">
+                    <option value="">Selecciona un lugar</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Transporte</label>
+                <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                    <div>
+                        <label for="uber_ida">Uber ida</label>
+                        <input type="number" id="uber_ida" min="0" step="0.01">
+                    </div>
+                    <div>
+                        <label for="chofer_ida">Chofer ida</label>
+                        <select id="chofer_ida">
+                            <option value="">Selecciona un chofer</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: flex-end; margin-top: 1rem;">
+                    <div>
+                        <label for="uber_regreso">Uber regreso</label>
+                        <input type="number" id="uber_regreso" min="0" step="0.01">
+                    </div>
+                    <div>
+                        <label for="chofer_regreso">Chofer regreso</label>
+                        <select id="chofer_regreso">
+                            <option value="">Selecciona un chofer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-switch form-group">
+                <label for="cancelado-toggle">Servicio Cancelado</label>
+                <div class="switch">
+                    <input type="checkbox" id="cancelado-toggle">
+                    <span class="slider round"></span>
+                </div>
+            </div>
+
+            <div id="feedback-message" class="form-message"></div>
+
+            <button type="submit" class="submit-button">Registrar Servicio</button>
+        </form>
+    </div>
+
+    <!-- Panel de Administración (oculto por defecto) -->
+    <div id="admin-panel" class="card" style="display: none;">
+        <h3>Panel de Administración</h3>
+        <div class="admin-section">
+            <h4>Usuarios</h4>
+            <ul id="user-list"></ul>
+        </div>
+        <div class="admin-section">
+            <h4>Oficinas</h4>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="nueva-oficina-nombre" placeholder="Nombre de la oficina">
+                <button onclick="agregarOficina()" style="background-color: var(--primary-color);">Agregar</button>
+            </div>
+            <ul id="oficina-list"></ul>
+        </div>
+        <div class="admin-section">
+            <h4>Catálogos</h4>
+            <h5>Lugares</h5>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="nuevo-lugar-nombre" placeholder="Nombre del lugar">
+                <button onclick="agregarCatalogo('lugares', 'nuevo-lugar-nombre')" style="background-color: var(--primary-color);">Agregar</button>
+            </div>
+            <ul id="lugares-list"></ul>
+            <h5>Bancos</h5>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="nuevo-banco-nombre" placeholder="Nombre del banco">
+                <button onclick="agregarCatalogo('bancos', 'nuevo-banco-nombre')" style="background-color: var(--primary-color);">Agregar</button>
+            </div>
+            <ul id="bancos-list"></ul>
+            <h5>Choferes</h5>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="nuevo-chofer-nombre" placeholder="Nombre del chofer">
+                <button onclick="agregarCatalogo('choferes', 'nuevo-chofer-nombre')" style="background-color: var(--primary-color);">Agregar</button>
+            </div>
+            <ul id="choferes-list"></ul>
+        </div>
+    </div>
+
+    <!-- Seccion de Registros Semanales -->
+    <div class="card">
+        <h3>Registros de la Semana</h3>
+        <div id="weekly-records-list" class="weekly-records">
+            <!-- Los registros se desplegarán aquí -->
+        </div>
+    </div>
+
+    <!-- Seccion de Corte (oculto por defecto) -->
+    <div id="cut-section" class="card" style="display: none;">
+        <h3>Reporte de Corte</h3>
+        <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div>
+                <label for="cut-week-select">Seleccionar Semana</label>
+                <select id="cut-week-select"></select>
+            </div>
+            <div>
+                <label for="cut-employee-select">Seleccionar Empleada</label>
+                <select id="cut-employee-select"></select>
+            </div>
+            <button id="generate-cut-button" style="background-color: var(--primary-color); color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer;">Generar Corte</button>
+        </div>
+        <div id="cut-report-output" style="margin-top: 2rem;">
+            <p>Selecciona una semana y una empleada para generar el reporte de corte.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal para editar registros (admin) -->
+<div id="editRecordModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeEditRecordModal()">&times;</span>
+        <h3>Editar Registro</h3>
+        <form id="edit-record-form">
+            <input type="hidden" id="edit-record-id">
+
+            <div class="form-group">
+                <label for="edit-empleada">Empleada</label>
+                <select id="edit-empleada" required>
+                    <option value="">Selecciona una empleada</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-horas_servicio">Horas del servicio</label>
+                <input type="number" id="edit-horas_servicio" min="0" step="0.5" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-total_servicio">Total del servicio</label>
+                <input type="number" id="edit-total_servicio" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-monto_efectivo">Monto efectivo</label>
+                <input type="number" id="edit-monto_efectivo" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="edit-monto_tarjeta">Monto tarjeta</label>
+                <input type="number" id="edit-monto_tarjeta" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="edit-banco">Banco</label>
+                <select id="edit-banco">
+                    <option value="">Selecciona un banco</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-extra">Extra</label>
+                <input type="number" id="edit-extra" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="edit-lugar">Lugar</label>
+                <select id="edit-lugar">
+                    <option value="">Selecciona un lugar</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-uber_ida">Uber ida</label>
+                <input type="number" id="edit-uber_ida" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="edit-chofer_ida">Chofer ida</label>
+                <select id="edit-chofer_ida">
+                    <option value="">Selecciona un chofer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-uber_regreso">Uber regreso</label>
+                <input type="number" id="edit-uber_regreso" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="edit-chofer_regreso">Chofer regreso</label>
+                <select id="edit-chofer_regreso">
+                    <option value="">Selecciona un chofer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cancelado</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="edit-cancelado-toggle">
+                    <span class="slider round"></span>
+                </div>
+            </div>
+
+            <div id="edit-feedback-message" class="form-message"></div>
+
+            <button type="submit" class="submit-button" style="background-color: var(--secondary-color);">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
