@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Servicios</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Usando Inter como se sugiere */
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px 10px; /* Menos padding en los lados para móviles */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box; /* CORREGIDO: de 'border' a 'border-box' */
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px; /* Bordes más redondeados */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+            width: 100%;
+            max-width: 650px; /* Ancho máximo para pantallas grandes */
+            box-sizing: border-box;
+        }
+        h1, h2, h3 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        #auth-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        #login-button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 17px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #login-button:hover {
+            background-color: #357ae8;
+            transform: translateY(-2px);
+        }
+        #login-button img {
+            margin-right: 12px;
+            width: 24px;
+            height: 24px;
+        }
+        #main-container {
+            display: none;
+        }
+        .user-info {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        .user-info p {
+            margin: 5px 0;
+            font-size: 15px;
+            color: #555;
+        }
+        form label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #444;
+            font-size: 15px;
+        }
+        form input, form select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        form input:focus, form select:focus {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            outline: none;
+        }
+        .submit-btn {
+            background-color: #34a853;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 17px;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .submit-btn:hover {
+            background-color: #2e8b46;
+            transform: translateY(-2px);
+        }
+        .logout-btn {
+            background-color: #ea4335;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            position: absolute; /* Para posicionarlo en la esquina superior derecha */
+            top: 15px;
+            right: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .logout-btn:hover {
+            background-color: #d93025;
+            transform: translateY(-1px);
+        }
+        #feedback-message {
+            margin-top: 25px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        #feedback-message.success {
+            background-color: #e6f4ea;
+            color: #1e8e3e;
+            border: 1px solid #a8dab5;
+        }
+        #feedback-message.error {
+            background-color: #fce8e6;
+            color: #d93025;
+            border: 1px solid #f2b8b5;
+        }
+
+        /* Estilos para el formulario del Administrador */
+        #admin-panel {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        .admin-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .admin-section h3 {
+            margin-top: 0;
+            color: #4285f4;
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .admin-section button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .admin-section button:hover {
+            background-color: #357ae8;
+            transform: translateY(-1px);
+        }
+        .admin-section input, .admin-section select {
+            margin-bottom: 10px;
+        }
+        .admin-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .admin-list li {
+            background-color: #fff;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9e9e9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .admin-list li span {
+            flex-grow: 1;
+            font-size: 15px;
+            color: #333;
+        }
+        .admin-list li button {
+            background-color: #dc3545; /* Rojo para eliminar */
+            margin-left: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        .admin-list li button:hover {
+            background-color: #c82333;
+        }
+
+        /* Estilos específicos para el formulario de edición de usuario */
+        .edit-user-form {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #d0e0f0;
+        }
+        .edit-user-form label {
+            font-weight: normal;
+            margin-top: 10px;
+            margin-bottom: 3px;
+        }
+        .edit-user-form button {
+            background-color: #28a745;
+            margin-top: 15px;
+        }
+        .edit-user-form button:hover {
+            background-color: #218838;
+        }
+
+        /* Estilos para la sección de registros */
+        #records-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        #records-list {
+            list-style: none;
+            padding: 0;
+        }
+        .record-item {
+            background-color: #ffffff; /* Fondo blanco */
+            padding: 20px; /* Más padding */
+            margin-bottom: 15px;
+            border-radius: 12px; /* Bordes más redondeados */
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra más suave y definida */
+            font-size: 0.95em;
+            display: grid; /* Usar grid para un mejor layout interno */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* CORREGIDO: de 'minminmax' a 'minmax' */
+            gap: 10px 20px; /* Espacio entre filas y columnas */
+        }
+        .record-item p {
+            margin: 0; /* Eliminar margen predeterminado de párrafos */
+            padding: 2px 0;
+            display: flex; /* Para alinear el strong con el valor */
+            flex-direction: column; /* Poner la etiqueta encima del valor */
+        }
+        .record-item strong {
+            color: #555; /* Color más suave para las etiquetas */
+            font-size: 0.85em; /* Etiqueta más pequeña */
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .record-item .record-value {
+            color: #333; /* Color para los valores */
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .record-item .record-meta {
+            grid-column: 1 / -1; /* Ocupar todo el ancho en el grid */
+            font-size: 0.8em; /* Meta info más pequeña */
+            color: #888;
+            margin-top: 15px;
+            border-top: 1px dashed #f0f0f0;
+            padding-top: 10px;
+            text-align: right;
+        }
+        .record-item .record-meta p {
+            margin: 0;
+        }
+
+        /* Estilos para la sección de Corte */
+        #cut-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            display: none; /* Inicialmente oculto, solo para admin */
+        }
+        #cut-section h2 {
+            margin-bottom: 20px;
+        }
+        .cut-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: flex-end;
+        }
+        .cut-controls div {
+            flex: 1;
+            min-width: 150px;
+        }
+        .cut-controls label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .cut-controls select, .cut-controls button {
+            width: 100%;
+        }
+        .cut-controls button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .cut-controls button:hover {
+            background-color: #45a049;
+        }
+
+        .cut-report-summary {
+            background-color: #e6f7ff; /* Fondo azul claro */
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #a8d9f8;
+            margin-bottom: 20px;
+        }
+        .cut-report-summary h3 {
+            color: #1a73e8;
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .cut-report-summary p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        .cut-report-summary .final-cut {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #34a853; /* Verde para el corte final */
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #b3e0ff;
+        }
+        .cut-report-summary .final-cut.negative {
+            color: #ea4335; /* Rojo si es negativo */
+        }
+
+        .cut-transactions-container { /* Nuevo contenedor para la tabla */
+            overflow-x: auto; /* Permite scroll horizontal */
+            -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+            margin-top: 20px;
+            border: 1px solid #ddd; /* Borde para la tabla */
+            border-radius: 8px;
+        }
+
+        .cut-transactions-table {
+            width: 100%; /* Ocupa el 100% del contenedor */
+            min-width: 800px; /* Ancho mínimo para que no se vea aplastada */
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .cut-transactions-table th, .cut-transactions-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+        }
+        .cut-transactions-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #555;
+        }
+        .cut-transactions-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .cut-transactions-table .office-col {
+            background-color: #e0e0e0;
+        }
+        .cut-transactions-table .employee-col {
+            background-color: #f3f3f3;
+        }
+        .cut-transactions-table .diff-col {
+            background-color: #c9daf8;
+        }
+        .cut-transactions-table .positive-diff {
+            color: green;
+            font-weight: bold;
+        }
+        .cut-transactions-table .negative-diff {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Estilos para el modal de edición de registro */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed; /* Fijo en la pantalla */
+            z-index: 1000; /* Por encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Habilitar scroll si el contenido es muy largo */
+            background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente oscuro */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+        }
+
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-content h3 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #444;
+        }
+        .modal-content input[type="number"],
+        .modal-content input[type="text"],
+        .modal-content select {
+            width: calc(100% - 24px); /* Ajustar por padding */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+            outline: none;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .modal-buttons .save-btn {
+            background-color: #34a853;
+            color: white;
+        }
+        .modal-buttons .save-btn:hover {
+            background-color: #2e8b46;
+        }
+        .modal-buttons .cancel-btn {
+            background-color: #ea4335;
+            color: white;
+        }
+        .modal-buttons .cancel-btn:hover {
+            background-color: #d93025;
+        }
+
+
+        /* Media Queries para responsividad */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .logout-btn {
+                position: static; /* Vuelve a la posición normal en móviles */
+                float: none;
+                margin-top: 15px;
+                width: 100%;
+            }
+            .user-info {
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+            .record-item {
+                grid-template-columns: 1fr; /* Una columna en móviles */
+                gap: 5px 0;
+            }
+            .record-item .record-meta {
+                text-align: left; /* Alinear a la izquierda en móviles */
+            }
+            .cut-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            .modal-content input[type="number"],
+            .modal-content input[type="text"],
+            .modal-content select {
+                width: 100%; /* Ajustar para móviles */
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Control de Servicios</h1>
+
+    <!-- Contenedor de Autenticación -->
+    <div id="auth-container">
+        <p>Por favor, inicia sesión con tu cuenta de Google.</p>
+        <button id="login-button">
+            <img width="20px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/512px-Google_%22G%22_logo.svg.png" />
+            Iniciar sesión con Google
+        </button>
+    </div>
+
+    <!-- Contenedor Principal de la App -->
+    <div id="main-container">
+        <div class="user-info">
+            <p>Bienvenido, <span id="user-email"></span> (<span id="user-role"></span>)</p>
+            <button id="logout-button" class="logout-btn">Cerrar Sesión</button>
+        </div>
+
+        <!-- Formulario de Registros -->
+        <form id="service-form">
+            <h2>Formulario de Registro de Servicios</h2>
+            <!-- Este campo solo se mostrará para el rol de JEFE -->
+            <div id="empleada-field" style="display: none;">
+                <label for="empleada">Trabajadora a cargo:</label>
+                <select id="empleada" name="empleada" required>
+                    <option value="">Selecciona una empleada</option>
+                </select>
+            </div>
+
+            <label for="horas_servicio">Horas de Servicio:</label>
+            <input type="number" id="horas_servicio" name="horas_servicio" step="0.01" required>
+
+            <label for="total_servicio">Total del Servicio:</label>
+            <input type="number" id="total_servicio" name="total_servicio" step="0.01" required>
+
+            <label for="monto_efectivo">Monto en Efectivo:</label>
+            <input type="number" id="monto_efectivo" name="monto_efectivo" step="0.01">
+
+            <label for="monto_tarjeta">Monto con Tarjeta:</label>
+            <input type="number" id="monto_tarjeta" name="monto_tarjeta" step="0.01">
+
+            <label for="banco">Banco:</label>
+            <select id="banco" name="banco">
+                <option value="">Selecciona un banco</option>
+            </select>
+
+            <label for="extra">Extra:</label>
+            <input type="number" id="extra" name="extra" step="0.01">
+
+            <label for="lugar">Lugar:</label>
+            <select id="lugar" name="lugar" required>
+                <option value="">Selecciona un lugar</option>
+            </select>
+
+            <label for="uber_ida">Uber Ida:</label>
+            <input type="number" id="uber_ida" name="uber_ida" step="0.01">
+
+            <label for="chofer_ida">Chofer Ida:</label>
+            <select id="chofer_ida" name="chofer_ida">
+                <option value="">Selecciona un chofer</option>
+            </select>
+
+            <label for="uber_regreso">Uber Regreso:</label>
+            <input type="number" id="uber_regreso" name="uber_regreso" step="0.01">
+
+            <label for="chofer_regreso">Chofer Regreso:</label>
+            <select id="chofer_regreso" name="chofer_regreso">
+                <option value="">Selecciona un chofer</option>
+            </select>
+
+            <button type="submit" class="submit-btn">Registrar Servicio</button>
+        </form>
+
+        <div id="feedback-message"></div>
+
+        <!-- Sección para mostrar registros -->
+        <div id="records-section">
+            <h2>Registros de Servicios</h2>
+            <ul id="records-list">
+                <!-- Los registros se cargarán aquí -->
+            </ul>
+        </div>
+
+        <!-- Sección de Corte (solo visible para el admin) -->
+        <div id="cut-section">
+            <h2>Corte Semanal Individual por Empleada</h2>
+            <div class="cut-controls">
+                <div>
+                    <label for="cut-week-select">Selecciona Semana:</label>
+                    <select id="cut-week-select">
+                        <option value="">Cargando semanas...</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="cut-employee-select">Selecciona Empleada:</label>
+                    <select id="cut-employee-select">
+                        <option value="">Cargando empleadas...</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="generate-cut-button">Generar Corte</button>
+                </div>
+            </div>
+
+            <div id="cut-report-output">
+                <!-- El reporte de corte se generará aquí -->
+                <p>Selecciona una semana y una empleada para generar el reporte de corte.</p>
+            </div>
+        </div>
+
+
+        <!-- Panel de Administración (solo visible para el admin) -->
+        <div id="admin-panel">
+            <h2>Panel de Administración</h2>
+
+            <div class="admin-section">
+                <h3>Gestión de Usuarios</h3>
+                <p>Asigna roles y oficinas a los usuarios existentes. El usuario debe iniciar sesión al menos una vez para aparecer aquí.</p>
+                <ul id="user-list" class="admin-list">
+                    <!-- Los usuarios se cargarán aquí -->
+                </ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Oficinas</h3>
+                <label for="nueva-oficina-nombre">Nombre de la Oficina:</label>
+                <input type="text" id="nueva-oficina-nombre" placeholder="Ej: Oficina Rubi">
+                <button onclick="agregarOficina()">Agregar Oficina</button>
+                <ul id="oficina-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Lugares</h3>
+                <label for="nuevo-lugar-nombre">Nombre del Lugar:</label>
+                <input type="text" id="nuevo-lugar-nombre" placeholder="Ej: Aika">
+                <button onclick="agregarCatalogo('lugares', 'nuevo-lugar-nombre')">Agregar Lugar</button>
+                <ul id="lugares-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Bancos</h3>
+                <label for="nuevo-banco-nombre">Nombre del Banco:</label>
+                <input type="text" id="nuevo-banco-nombre" placeholder="Ej: BBVA">
+                <button onclick="agregarCatalogo('bancos', 'nuevo-banco-nombre')">Agregar Banco</button>
+                <ul id="bancos-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Choferes</h3>
+                <label for="nuevo-chofer-nombre">Nombre del Chofer:</label>
+                <input type="text" id="nuevo-chofer-nombre" placeholder="Ej: Paco">
+                <button onclick="agregarCatalogo('choferes', 'nuevo-chofer-nombre')">Agregar Chofer</button>
+                <ul id="choferes-list" class="admin-list"></ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de Edición de Registro -->
+<div id="editRecordModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeEditRecordModal()">&times;</span>
+        <h3>Editar Registro de Servicio</h3>
+        <form id="edit-record-form">
+            <input type="hidden" id="edit-record-id">
+
+            <label for="edit-empleada">Trabajadora a cargo:</label>
+            <select id="edit-empleada" name="empleada" required>
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-horas_servicio">Horas de Servicio:</label>
+            <input type="number" id="edit-horas_servicio" name="horas_servicio" step="0.01" required>
+
+            <label for="edit-total_servicio">Total del Servicio:</label>
+            <input type="number" id="edit-total_servicio" name="total_servicio" step="0.01" required>
+
+            <label for="edit-monto_efectivo">Monto en Efectivo:</label>
+            <input type="number" id="edit-monto_efectivo" name="monto_efectivo" step="0.01">
+
+            <label for="edit-monto_tarjeta">Monto con Tarjeta:</label>
+            <input type="number" id="edit-monto_tarjeta" name="monto_tarjeta" step="0.01">
+
+            <label for="edit-banco">Banco:</label>
+            <select id="edit-banco" name="banco">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-extra">Extra:</label>
+            <input type="number" id="edit-extra" name="extra" step="0.01">
+
+            <label for="edit-lugar">Lugar:</label>
+            <select id="edit-lugar" name="lugar" required>
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-uber_ida">Uber Ida:</label>
+            <input type="number" id="edit-uber_ida" name="uber_ida" step="0.01">
+
+            <label for="edit-chofer_ida">Chofer Ida:</label>
+            <select id="edit-chofer_ida" name="chofer_ida">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-uber_regreso">Uber Regreso:</label>
+            <input type="number" id="edit-uber_regreso" name="uber_regreso" step="0.01">
+
+            <label for="edit-chofer_regreso">Chofer Regreso:</label>
+            <select id="edit-chofer_regreso" name="chofer_regreso">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <div class="modal-buttons">
+                <button type="submit" class="save-btn">Guardar Cambios</button>
+                <button type="button" class="cancel-btn" onclick="closeEditRecordModal()">Cancelar</button>
+            </div>
+        </form>
+        <div id="edit-feedback-message" class="feedback-message"></div>
+    </div>
+</div>
+
+<!-- Incluir los SDK de Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
