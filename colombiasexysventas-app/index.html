@@ -3,681 +3,688 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ColombiaSexys Ventas</title>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Control de Servicios</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        :root {
-            --primary-color: #3b82f6; /* Tailwind's blue-500 */
-            --secondary-color: #f67280; /* A nice pink */
-            --bg-color: #f1f5f9; /* Tailwind's slate-100 */
-            --card-bg: #ffffff;
-            --text-color: #334155; /* Tailwind's slate-700 */
-            --success-color: #10b981; /* Tailwind's green-500 */
-            --error-color: #ef4444; /* Tailwind's red-500 */
-        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: #f0f2f5;
+            color: #333;
             margin: 0;
-            padding: 0;
+            padding: 20px 10px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+            box-sizing: border-box;
         }
         .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .auth-container {
-            background-color: var(--card-bg);
-            padding: 3rem;
+            background-color: #fff;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 800px; /* Aumentado para las nuevas columnas */
+            box-sizing: border-box;
+        }
+        h1, h2, h3 {
+            color: #1a73e8;
             text-align: center;
-            margin-top: 20vh;
+            margin-bottom: 25px;
+            font-weight: 700;
         }
-        .auth-container h1 {
-            color: var(--primary-color);
-            margin-bottom: 2rem;
+        #auth-container {
+            text-align: center;
+            padding: 40px 20px;
         }
-        .auth-container button {
-            background-color: var(--primary-color);
+        #login-button {
+            background-color: #4285f4;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 1.1rem;
+            padding: 12px 25px;
+            font-size: 17px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .auth-container button:hover {
-            background-color: #2563eb;
-        }
-        .header {
-            background-color: var(--card-bg);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            justify-content: center;
+            margin: auto;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #login-button:hover {
+            background-color: #357ae8;
+            transform: translateY(-2px);
+        }
+        #login-button img {
+            margin-right: 12px;
+            width: 24px;
+            height: 24px;
+        }
+        #main-container {
+            display: none;
         }
         .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .user-info .fa-user-circle {
-            font-size: 2rem;
-            color: var(--primary-color);
-        }
-        .user-info h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            position: relative;
         }
         .user-info p {
-            margin: 0;
-            font-size: 0.875rem;
-            color: #64748b;
+            margin: 5px 0;
+            font-size: 15px;
+            color: #555;
         }
-        .header button {
-            background-color: var(--error-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .header button:hover {
-            background-color: #dc2626;
-        }
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .card {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .card h3 {
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
+        form label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-top: 18px;
+            margin-bottom: 6px;
             font-weight: 600;
+            color: #444;
+            font-size: 15px;
         }
-        input[type="text"], input[type="number"], select {
+        form input, form select {
             width: 100%;
-            padding: 0.75rem;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
             box-sizing: border-box;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        form input:focus, form select:focus {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
             outline: none;
-            border-color: var(--primary-color);
         }
-        .form-message {
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-top: 1rem;
-            display: none;
-        }
-        .form-message.success {
-            background-color: #d1fae5;
-            color: var(--success-color);
-        }
-        .form-message.error {
-            background-color: #fee2e2;
-            color: var(--error-color);
-        }
-        .submit-button {
-            background-color: var(--primary-color);
+        .submit-btn {
+            background-color: #34a853;
             color: white;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-size: 1.1rem;
+            padding: 14px 25px;
+            font-size: 17px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            border-radius: 8px;
             width: 100%;
-            margin-top: 1rem;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .submit-button:hover {
-            background-color: #2563eb;
+        .submit-btn:hover {
+            background-color: #2e8b46;
+            transform: translateY(-2px);
         }
-
-        .toggle-switch {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .toggle-switch label {
-            margin: 0;
-            font-weight: 400;
-        }
-        .toggle-switch .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .toggle-switch .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-switch .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .toggle-switch .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        .toggle-switch input:checked + .slider {
-            background-color: var(--error-color);
-        }
-        .toggle-switch input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .weekly-records {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .weekly-records h3 {
-            margin-bottom: 0.5rem;
-        }
-        .weekly-records .record-item {
-            background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border-left: 5px solid var(--primary-color);
-            position: relative;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        .weekly-records .record-item.canceled {
-            border-left: 5px solid var(--error-color);
-            opacity: 0.6;
-        }
-        .weekly-records .record-item .record-value {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        .weekly-records .record-item.canceled .record-value {
-            color: var(--error-color);
-        }
-        .weekly-records .record-item p {
-            margin: 0.5rem 0;
-        }
-        .weekly-records .record-item .record-meta {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-top: 1rem;
-        }
-        .weekly-records .record-item button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: var(--secondary-color);
+        .logout-btn {
+            background-color: #ea4335;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 9px 18px;
+            font-size: 14px;
+            cursor: pointer;
             border-radius: 6px;
-            cursor: pointer;
-        }
-
-        /* Estilos del modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: var(--card-bg);
-            margin: 10% auto;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: #000;
-            text-decoration: none;
+        .logout-btn:hover {
+            background-color: #d93025;
+            transform: translateY(-1px);
+        }
+        #feedback-message {
+            margin-top: 25px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        #feedback-message.success {
+            background-color: #e6f4ea;
+            color: #1e8e3e;
+            border: 1px solid #a8dab5;
+        }
+        #feedback-message.error {
+            background-color: #fce8e6;
+            color: #d93025;
+            border: 1px solid #f2b8b5;
         }
 
-        /* Estilos para el panel de administración */
-        .admin-section {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        /* --- Nuevo: Estilos para el formulario dinámico --- */
+        .dynamic-form-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 5px;
         }
-        .admin-section h4 {
+        .dynamic-form-section label {
             margin-top: 0;
-            color: var(--primary-color);
-        }
-        .admin-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        .admin-section ul li {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-        .admin-section ul li button {
-            background-color: var(--error-color);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .admin-section ul li button:hover {
-            background-color: #dc2626;
-        }
-        .edit-user-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            margin-bottom: 0;
         }
 
-        /* Botones de Empleadas para Jefes */
+        /* --- Nuevo: Estilos para el campo de empleados de Jefes --- */
+        #empleada-field {
+            display: none;
+        }
         .empleada-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
         }
-        .empleada-buttons .empleada-button {
-            padding: 10px 15px;
-            border-radius: 8px;
+        .empleada-buttons .empleada-btn {
+            padding: 8px 12px;
+            border-radius: 20px;
             border: 2px solid transparent;
-            color: white;
-            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
-        .empleada-buttons .empleada-button:hover {
+        .empleada-buttons .empleada-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        .empleada-buttons .empleada-button.active {
-            border-color: #334155;
-            transform: scale(1.05);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        .empleada-buttons .empleada-btn.selected {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border-color: #fff; /* Borde blanco para indicar seleccionado */
+            filter: brightness(1.2); /* Más brillante al seleccionar */
         }
 
+        /* --- Nuevo: Estilos para la sección de registros semanales --- */
+        #records-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        .week-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .week-selector button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .week-selector button:hover {
+            background-color: #357ae8;
+        }
+
+        /* --- Nuevo: Estilos para la vista de columnas de Jefes --- */
+        #office-records-view {
+            display: none; /* Oculto por defecto, solo para jefes */
+        }
+        .employee-columns {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .employee-column {
+            flex: 0 0 300px; /* Ancho fijo para cada columna */
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .employee-column h3 {
+            margin: 0;
+            padding: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .employee-column .record-item {
+            margin-bottom: 10px;
+            box-shadow: none;
+        }
+        .employee-column .record-item p {
+            font-size: 0.9em;
+        }
+        .employee-column .record-item .record-meta {
+            display: none; /* Ocultamos la meta info en esta vista */
+        }
+        /* --- Resto de estilos existentes... --- */
+        .admin-panel { display: none; }
+        .admin-section {
+            background-color: #f9f9f9; padding: 20px; margin-bottom: 25px; border-radius: 10px; border: 1px solid #e0e0e0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .admin-section h3 { margin-top: 0; color: #4285f4; text-align: left; margin-bottom: 15px; font-size: 1.2em; }
+        .admin-section button {
+            background-color: #4285f4; color: white; border: none; padding: 10px 18px; font-size: 15px; cursor: pointer; border-radius: 6px; margin-top: 15px; transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .admin-section button:hover { background-color: #357ae8; transform: translateY(-1px); }
+        .admin-section input, .admin-section select { margin-bottom: 10px; }
+        .admin-list { list-style: none; padding: 0; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .admin-list li {
+            background-color: #fff; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e9e9e9; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .admin-list li span { flex-grow: 1; font-size: 15px; color: #333; }
+        .admin-list li button { background-color: #dc3545; margin-left: 10px; padding: 8px 12px; font-size: 13px; }
+        .admin-list li button:hover { background-color: #c82333; }
+        .edit-user-form { background-color: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #d0e0f0; }
+        .edit-user-form label { font-weight: normal; margin-top: 10px; margin-bottom: 3px; }
+        .edit-user-form button { background-color: #28a745; margin-top: 15px; }
+        .edit-user-form button:hover { background-color: #218838; }
+        #records-list { list-style: none; padding: 0; }
+        .record-item {
+            background-color: #ffffff; padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-size: 0.95em; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 20px;
+        }
+        .record-item p { margin: 0; padding: 2px 0; display: flex; flex-direction: column; }
+        .record-item strong { color: #555; font-size: 0.85em; font-weight: 600; margin-bottom: 2px; }
+        .record-item .record-value { color: #333; font-size: 1em; font-weight: 500; }
+        .record-item .record-meta { grid-column: 1 / -1; font-size: 0.8em; color: #888; margin-top: 15px; border-top: 1px dashed #f0f0f0; padding-top: 10px; text-align: right; }
+        #cut-section { margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee; display: none; }
+        #cut-section h2 { margin-bottom: 20px; }
+        .cut-controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; align-items: flex-end; }
+        .cut-controls div { flex: 1; min-width: 150px; }
+        .cut-controls label { font-weight: 600; margin-bottom: 5px; }
+        .cut-controls select, .cut-controls button { width: 100%; }
+        .cut-controls button {
+            background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease;
+        }
+        .cut-controls button:hover { background-color: #45a049; }
+        .cut-report-summary {
+            background-color: #e6f7ff; padding: 15px; border-radius: 10px; border: 1px solid #a8d9f8; margin-bottom: 20px;
+        }
+        .cut-report-summary h3 { color: #1a73e8; text-align: left; margin-bottom: 10px; font-size: 1.1em; }
+        .cut-report-summary p { margin: 5px 0; font-size: 0.95em; }
+        .cut-report-summary .final-cut { font-size: 1.2em; font-weight: bold; color: #34a853; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #b3e0ff; }
+        .cut-report-summary .final-cut.negative { color: #ea4335; }
+        .cut-transactions-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .cut-transactions-table { width: 100%; min-width: 800px; border-collapse: collapse; font-size: 0.9em; }
+        .cut-transactions-table th, .cut-transactions-table td { border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap; }
+        .cut-transactions-table th { background-color: #f2f2f2; font-weight: 600; color: #555; }
+        .cut-transactions-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        .cut-transactions-table .office-col { background-color: #e0e0e0; }
+        .cut-transactions-table .employee-col { background-color: #f3f3f3; }
+        .cut-transactions-table .diff-col { background-color: #c9daf8; }
+        .cut-transactions-table .positive-diff { color: green; font-weight: bold; }
+        .cut-transactions-table .negative-diff { color: red; font-weight: bold; }
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: #fefefe; margin: auto; padding: 25px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); width: 90%; max-width: 500px; position: relative; animation-name: animatetop; animation-duration: 0.4s;
+        }
+        @keyframes animatetop { from {top: -300px; opacity: 0} to {top: 0; opacity: 1} }
+        .close-button {
+            color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 15px; cursor: pointer;
+        }
+        .close-button:hover, .close-button:focus { color: black; text-decoration: none; cursor: pointer; }
+        .modal-content h3 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        .modal-content label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: 600; color: #444; }
+        .modal-content input[type="number"], .modal-content input[type="text"], .modal-content select {
+            width: calc(100% - 24px); padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 15px; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modal-content input:focus, .modal-content select:focus {
+            border-color: #8ab4f8; box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2); outline: none;
+        }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .modal-buttons .save-btn { background-color: #34a853; color: white; }
+        .modal-buttons .save-btn:hover { background-color: #2e8b46; }
+        .modal-buttons .cancel-btn { background-color: #ea4335; color: white; }
+        .modal-buttons .cancel-btn:hover { background-color: #d93025; }
+
+        /* Media Queries para responsividad */
+        @media (max-width: 768px) {
+            .container { padding: 15px; margin: 10px; }
+            h1 { font-size: 1.8em; }
+            .logout-btn { position: static; float: none; margin-top: 15px; width: 100%; }
+            .user-info { padding-bottom: 0; border-bottom: none; }
+            .record-item { grid-template-columns: 1fr; gap: 5px 0; }
+            .record-item .record-meta { text-align: left; }
+            .cut-controls { flex-direction: column; align-items: stretch; }
+            .modal-content { width: 95%; padding: 15px; }
+            .modal-content input[type="number"], .modal-content input[type="text"], .modal-content select { width: 100%; }
+            .employee-columns { flex-direction: column; }
+            .employee-column { flex: 0 0 auto; width: 100%; }
+        }
     </style>
 </head>
 <body>
+<div class="container">
+    <h1>Control de Servicios</h1>
 
-<!-- Contenedor de Autenticación -->
-<div id="auth-container" class="auth-container">
-    <h1>Bienvenido</h1>
-    <p>Inicia sesión para continuar.</p>
-    <button id="login-button">
-        <i class="fab fa-google"></i> Iniciar sesión con Google
-    </button>
-</div>
+    <!-- Contenedor de Autenticación -->
+    <div id="auth-container">
+        <p>Por favor, inicia sesión con tu cuenta de Google.</p>
+        <button id="login-button">
+            <img width="20px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/512px-Google_%22G%22_logo.svg.png" />
+            Iniciar sesión con Google
+        </button>
+    </div>
 
-<!-- Contenedor Principal de la Aplicación -->
-<div id="main-container" class="container" style="display: none;">
-    <header class="header">
+    <!-- Contenedor Principal de la App -->
+    <div id="main-container">
         <div class="user-info">
-            <i class="fas fa-user-circle"></i>
-            <div>
-                <h2 id="user-email"></h2>
-                <p>Rol: <span id="user-role"></span></p>
-            </div>
-        </div>
-        <button id="logout-button">Cerrar Sesión</button>
-    </header>
-
-    <!-- Formulario de Registro de Servicio -->
-    <div class="card">
-        <h3 id="form-title">Registro de Servicio</h3>
-
-        <!-- Botones de Empleadas para Jefes -->
-        <div id="empleada-selection" class="form-group" style="display: none;">
-            <label for="empleada-buttons">Selecciona la Empleada</label>
-            <div id="empleada-buttons" class="empleada-buttons">
-                <!-- Los botones de empleadas se generarán aquí por JS -->
-            </div>
+            <p>Bienvenido, <span id="user-email"></span> (<span id="user-role"></span>)</p>
+            <button id="logout-button" class="logout-btn">Cerrar Sesión</button>
         </div>
 
+        <!-- Formulario de Registros -->
         <form id="service-form">
-            <div class="form-group">
-                <label for="horas_servicio">Horas del servicio</label>
-                <input type="number" id="horas_servicio" required min="0" step="0.5">
-            </div>
-            <div class="form-group">
-                <label for="total_servicio">Total del servicio</label>
-                <input type="number" id="total_servicio" required min="0" step="0.01">
-            </div>
-
-            <!-- Sección de Método de Pago -->
-            <div class="form-group">
-                <label>Método de Pago</label>
-                <div style="display: flex; gap: 1rem;">
-                    <label><input type="radio" name="metodo_pago" value="efectivo" checked> Efectivo</label>
-                    <label><input type="radio" name="metodo_pago" value="tarjeta"> Tarjeta</label>
-                    <label><input type="radio" name="metodo_pago" value="mixto"> Mixto</label>
+            <h2>Formulario de Registro de Servicios</h2>
+            <!-- Este campo solo se mostrará para el rol de JEFE -->
+            <div id="empleada-field">
+                <label>Trabajadora a cargo:</label>
+                <div id="empleada-buttons-container" class="empleada-buttons">
+                    <!-- Los botones de empleadas se cargarán aquí -->
                 </div>
+                <input type="hidden" id="empleada-uid-selected" name="empleada_uid" required>
             </div>
 
-            <div id="pago-tarjeta-container" style="display: none;">
-                <div class="form-group">
-                    <label for="monto_tarjeta">Monto de tarjeta</label>
-                    <input type="number" id="monto_tarjeta" min="0" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="banco">Banco de la transacción</label>
-                    <select id="banco">
-                        <option value="">Selecciona un banco</option>
-                    </select>
-                </div>
-            </div>
+            <label for="horas_servicio">Horas de Servicio:</label>
+            <input type="number" id="horas_servicio" name="horas_servicio" step="0.01" required>
 
-            <div id="pago-mixto-container" style="display: none;">
-                <div class="form-group">
-                    <label for="monto_mixto_tarjeta">Monto de tarjeta</label>
-                    <input type="number" id="monto_mixto_tarjeta" min="0" step="0.01">
+            <label for="total_servicio">Total del Servicio:</label>
+            <input type="number" id="total_servicio" name="total_servicio" step="0.01" required>
+
+            <!-- Nuevo: Sección de métodos de pago -->
+            <label>Método de Pago:</label>
+            <div class="dynamic-form-section">
+                <div>
+                    <input type="radio" id="pago-efectivo" name="metodo_pago" value="efectivo" checked>
+                    <label for="pago-efectivo">Efectivo</label>
                 </div>
-                <div class="form-group">
-                    <label for="monto_mixto_efectivo">Monto de efectivo</label>
-                    <input type="number" id="monto_mixto_efectivo" min="0" step="0.01">
+                <div>
+                    <input type="radio" id="pago-tarjeta" name="metodo_pago" value="tarjeta">
+                    <label for="pago-tarjeta">Tarjeta</label>
                 </div>
-                <div class="form-group">
-                    <label for="banco_mixto">Banco de la transacción</label>
-                    <select id="banco_mixto">
-                        <option value="">Selecciona un banco</option>
-                    </select>
+                <div>
+                    <input type="radio" id="pago-mixto" name="metodo_pago" value="mixto">
+                    <label for="pago-mixto">Mixto</label>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="extra">Extra</label>
-                <input type="number" id="extra" min="0" step="0.01">
+            <div id="monto-efectivo-field" style="display:none;">
+                <label for="monto_efectivo">Monto en Efectivo:</label>
+                <input type="number" id="monto_efectivo" name="monto_efectivo" step="0.01">
             </div>
 
-            <div id="extra-banco-container" class="form-group" style="display: none;">
-                <label for="extra_banco">Banco del extra</label>
-                <select id="extra_banco">
+            <!-- El campo de monto tarjeta ahora solo se muestra en mixto -->
+            <div id="monto-tarjeta-field" style="display:none;">
+                <label for="monto_tarjeta">Monto con Tarjeta:</label>
+                <input type="number" id="monto_tarjeta" name="monto_tarjeta" step="0.01">
+            </div>
+
+            <label for="extra">Extra:</label>
+            <input type="number" id="extra" name="extra" step="0.01">
+
+            <div id="banco-field" style="display:none;">
+                <label for="banco">Banco (si aplica):</label>
+                <select id="banco" name="banco">
                     <option value="">Selecciona un banco</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="lugar">Lugar</label>
-                <select id="lugar">
-                    <option value="">Selecciona un lugar</option>
-                </select>
-            </div>
+            <label for="lugar">Lugar:</label>
+            <select id="lugar" name="lugar" required>
+                <option value="">Selecciona un lugar</option>
+            </select>
 
-            <div class="form-group">
-                <label>Transporte</label>
-                <div style="display: flex; gap: 1rem; align-items: flex-end;">
-                    <div>
-                        <label for="uber_ida">Uber ida</label>
-                        <input type="number" id="uber_ida" min="0" step="0.01">
-                    </div>
-                    <div>
-                        <label for="chofer_ida">Chofer ida</label>
-                        <select id="chofer_ida">
-                            <option value="">Selecciona un chofer</option>
-                        </select>
-                    </div>
+            <div class="dynamic-form-section">
+                <div>
+                    <label for="uber_ida">Uber Ida:</label>
+                    <input type="number" id="uber_ida" name="uber_ida" step="0.01">
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: flex-end; margin-top: 1rem;">
-                    <div>
-                        <label for="uber_regreso">Uber regreso</label>
-                        <input type="number" id="uber_regreso" min="0" step="0.01">
-                    </div>
-                    <div>
-                        <label for="chofer_regreso">Chofer regreso</label>
-                        <select id="chofer_regreso">
-                            <option value="">Selecciona un chofer</option>
-                        </select>
-                    </div>
+                <div>
+                    <label for="chofer_ida">Chofer Ida:</label>
+                    <select id="chofer_ida" name="chofer_ida">
+                        <option value="">Selecciona un chofer</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="toggle-switch form-group">
-                <label for="cancelado-toggle">Servicio Cancelado</label>
-                <div class="switch">
-                    <input type="checkbox" id="cancelado-toggle">
-                    <span class="slider round"></span>
+            <div class="dynamic-form-section">
+                <div>
+                    <label for="uber_regreso">Uber Regreso:</label>
+                    <input type="number" id="uber_regreso" name="uber_regreso" step="0.01">
+                </div>
+                <div>
+                    <label for="chofer_regreso">Chofer Regreso:</label>
+                    <select id="chofer_regreso" name="chofer_regreso">
+                        <option value="">Selecciona un chofer</option>
+                    </select>
                 </div>
             </div>
 
-            <div id="feedback-message" class="form-message"></div>
+            <!-- Nuevo: Campo para "Cancelado" -->
+            <div style="margin-top: 20px;">
+                <input type="checkbox" id="cancelado" name="cancelado">
+                <label for="cancelado" style="display:inline; font-weight:normal;">Servicio Cancelado</label>
+            </div>
 
-            <button type="submit" class="submit-button">Registrar Servicio</button>
+            <button type="submit" class="submit-btn">Registrar Servicio</button>
         </form>
-    </div>
 
-    <!-- Panel de Administración (oculto por defecto) -->
-    <div id="admin-panel" class="card" style="display: none;">
-        <h3>Panel de Administración</h3>
-        <div class="admin-section">
-            <h4>Usuarios</h4>
-            <ul id="user-list"></ul>
-        </div>
-        <div class="admin-section">
-            <h4>Oficinas</h4>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="nueva-oficina-nombre" placeholder="Nombre de la oficina">
-                <button onclick="agregarOficina()" style="background-color: var(--primary-color);">Agregar</button>
-            </div>
-            <ul id="oficina-list"></ul>
-        </div>
-        <div class="admin-section">
-            <h4>Catálogos</h4>
-            <h5>Lugares</h5>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="nuevo-lugar-nombre" placeholder="Nombre del lugar">
-                <button onclick="agregarCatalogo('lugares', 'nuevo-lugar-nombre')" style="background-color: var(--primary-color);">Agregar</button>
-            </div>
-            <ul id="lugares-list"></ul>
-            <h5>Bancos</h5>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="nuevo-banco-nombre" placeholder="Nombre del banco">
-                <button onclick="agregarCatalogo('bancos', 'nuevo-banco-nombre')" style="background-color: var(--primary-color);">Agregar</button>
-            </div>
-            <ul id="bancos-list"></ul>
-            <h5>Choferes</h5>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input type="text" id="nuevo-chofer-nombre" placeholder="Nombre del chofer">
-                <button onclick="agregarCatalogo('choferes', 'nuevo-chofer-nombre')" style="background-color: var(--primary-color);">Agregar</button>
-            </div>
-            <ul id="choferes-list"></ul>
-        </div>
-    </div>
+        <div id="feedback-message"></div>
 
-    <!-- Seccion de Registros Semanales -->
-    <div class="card">
-        <h3>Registros de la Semana</h3>
-        <div id="weekly-records-list" class="weekly-records">
-            <!-- Los registros se desplegarán aquí -->
-        </div>
-    </div>
-
-    <!-- Seccion de Corte (oculto por defecto) -->
-    <div id="cut-section" class="card" style="display: none;">
-        <h3>Reporte de Corte</h3>
-        <div class="form-group" style="display: flex; gap: 1rem; align-items: flex-end;">
-            <div>
-                <label for="cut-week-select">Seleccionar Semana</label>
-                <select id="cut-week-select"></select>
+        <!-- Sección para mostrar registros -->
+        <div id="records-section">
+            <h2 id="records-section-title">Registros de la Semana Actual</h2>
+            <!-- Nuevo: Selector de semana para administradores -->
+            <div id="week-selector-container" class="week-selector" style="display: none;">
+                <button id="prev-week-btn">← Semana Anterior</button>
+                <span id="current-week-display"></span>
+                <button id="next-week-btn">Semana Siguiente →</button>
             </div>
-            <div>
-                <label for="cut-employee-select">Seleccionar Empleada</label>
-                <select id="cut-employee-select"></select>
+            <!-- Nuevo: Contenedor para la vista columnar de jefes -->
+            <div id="office-records-view" style="display: none;">
+                <div class="employee-columns">
+                    <!-- Columnas de registros por empleada se renderizarán aquí -->
+                </div>
             </div>
-            <button id="generate-cut-button" style="background-color: var(--primary-color); color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer;">Generar Corte</button>
+            <!-- Lista normal de registros para empleados/admin -->
+            <ul id="records-list">
+                <!-- Los registros se cargarán aquí -->
+            </ul>
         </div>
-        <div id="cut-report-output" style="margin-top: 2rem;">
-            <p>Selecciona una semana y una empleada para generar el reporte de corte.</p>
-        </div>
-    </div>
 
+        <!-- Sección de Corte (solo visible para el admin) -->
+        <div id="cut-section">
+            <h2>Corte Semanal Individual por Empleada</h2>
+            <div class="cut-controls">
+                <div>
+                    <label for="cut-week-select">Selecciona Semana:</label>
+                    <select id="cut-week-select">
+                        <option value="">Cargando semanas...</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="cut-employee-select">Selecciona Empleada:</label>
+                    <select id="cut-employee-select">
+                        <option value="">Cargando empleadas...</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="generate-cut-button">Generar Corte</button>
+                </div>
+            </div>
+
+            <div id="cut-report-output">
+                <!-- El reporte de corte se generará aquí -->
+                <p>Selecciona una semana y una empleada para generar el reporte de corte.</p>
+            </div>
+        </div>
+
+
+        <!-- Panel de Administración (solo visible para el admin) -->
+        <div id="admin-panel" class="admin-panel">
+            <h2>Panel de Administración</h2>
+
+            <!-- NUEVO: Formulario para crear un nuevo usuario -->
+            <div class="admin-section">
+                <h3>Crear Nuevo Usuario</h3>
+                <form id="create-user-form">
+                    <label for="create-user-name">Nombre:</label>
+                    <input type="text" id="create-user-name" placeholder="Ej: Nueva Empleada">
+
+                    <label for="create-user-email">Correo Electrónico:</label>
+                    <input type="email" id="create-user-email" placeholder="ejemplo@google.com">
+
+                    <label for="create-user-oficina">Oficina:</label>
+                    <select id="create-user-oficina">
+                        <option value="">Sin Oficina</option>
+                        <!-- Opciones de oficinas se cargarán aquí -->
+                    </select>
+
+                    <button type="submit">Crear Usuario</button>
+                </form>
+                <div id="create-user-feedback" class="feedback-message"></div>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Usuarios</h3>
+                <p>Asigna roles y oficinas a los usuarios existentes. El usuario debe iniciar sesión al menos una vez para aparecer aquí.</p>
+                <ul id="user-list" class="admin-list">
+                    <!-- Los usuarios se cargarán aquí -->
+                </ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Oficinas</h3>
+                <label for="nueva-oficina-nombre">Nombre de la Oficina:</label>
+                <input type="text" id="nueva-oficina-nombre" placeholder="Ej: Oficina Rubi">
+                <button onclick="agregarOficina()">Agregar Oficina</button>
+                <ul id="oficina-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gestión de Catálogos</h3>
+                <p>Añade nuevos elementos a los menús desplegables.</p>
+                <label for="nuevo-lugar-nombre">Nombre del Lugar:</label>
+                <input type="text" id="nuevo-lugar-nombre" placeholder="Ej: Aika">
+                <button onclick="agregarCatalogo('lugares', 'nuevo-lugar-nombre')">Agregar Lugar</button>
+                <ul id="lugares-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <label for="nuevo-banco-nombre">Nombre del Banco:</label>
+                <input type="text" id="nuevo-banco-nombre" placeholder="Ej: BBVA">
+                <button onclick="agregarCatalogo('bancos', 'nuevo-banco-nombre')">Agregar Banco</button>
+                <ul id="bancos-list" class="admin-list"></ul>
+            </div>
+
+            <div class="admin-section">
+                <label for="nuevo-chofer-nombre">Nombre del Chofer:</label>
+                <input type="text" id="nuevo-chofer-nombre" placeholder="Ej: Paco">
+                <button onclick="agregarCatalogo('choferes', 'nuevo-chofer-nombre')">Agregar Chofer</button>
+                <ul id="choferes-list" class="admin-list"></ul>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<!-- Modal para editar registros (admin) -->
+<!-- Modal de Edición de Registro -->
 <div id="editRecordModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeEditRecordModal()">&times;</span>
-        <h3>Editar Registro</h3>
+        <h3>Editar Registro de Servicio</h3>
         <form id="edit-record-form">
             <input type="hidden" id="edit-record-id">
+            <p><strong>No. de Servicio:</strong> <span id="edit-no-servicio-display"></span></p>
 
-            <div class="form-group">
-                <label for="edit-empleada">Empleada</label>
-                <select id="edit-empleada" required>
-                    <option value="">Selecciona una empleada</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-horas_servicio">Horas del servicio</label>
-                <input type="number" id="edit-horas_servicio" min="0" step="0.5" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-total_servicio">Total del servicio</label>
-                <input type="number" id="edit-total_servicio" min="0" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-monto_efectivo">Monto efectivo</label>
-                <input type="number" id="edit-monto_efectivo" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="edit-monto_tarjeta">Monto tarjeta</label>
-                <input type="number" id="edit-monto_tarjeta" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="edit-banco">Banco</label>
-                <select id="edit-banco">
-                    <option value="">Selecciona un banco</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-extra">Extra</label>
-                <input type="number" id="edit-extra" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="edit-lugar">Lugar</label>
-                <select id="edit-lugar">
-                    <option value="">Selecciona un lugar</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-uber_ida">Uber ida</label>
-                <input type="number" id="edit-uber_ida" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="edit-chofer_ida">Chofer ida</label>
-                <select id="edit-chofer_ida">
-                    <option value="">Selecciona un chofer</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-uber_regreso">Uber regreso</label>
-                <input type="number" id="edit-uber_regreso" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="edit-chofer_regreso">Chofer regreso</label>
-                <select id="edit-chofer_regreso">
-                    <option value="">Selecciona un chofer</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Cancelado</label>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="edit-cancelado-toggle">
-                    <span class="slider round"></span>
+            <label for="edit-empleada">Trabajadora a cargo:</label>
+            <select id="edit-empleada" name="empleada" required>
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-horas_servicio">Horas de Servicio:</label>
+            <input type="number" id="edit-horas_servicio" name="horas_servicio" step="0.01" required>
+
+            <label for="edit-total_servicio">Total del Servicio:</label>
+            <input type="number" id="edit-total_servicio" name="total_servicio" step="0.01" required>
+
+            <!-- Nuevo: Campos dinámicos para el modal -->
+            <div id="edit-payment-fields">
+                <label>Método de Pago:</label>
+                <div class="dynamic-form-section">
+                    <div>
+                        <input type="radio" id="edit-pago-efectivo" name="edit_metodo_pago" value="efectivo" checked>
+                        <label for="edit-pago-efectivo">Efectivo</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="edit-pago-tarjeta" name="edit_metodo_pago" value="tarjeta">
+                        <label for="edit-pago-tarjeta">Tarjeta</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="edit-pago-mixto" name="edit_metodo_pago" value="mixto">
+                        <label for="edit-pago-mixto">Mixto</label>
+                    </div>
+                </div>
+
+                <div id="edit-monto-efectivo-field" style="display:none;">
+                    <label for="edit-monto_efectivo">Monto en Efectivo:</label>
+                    <input type="number" id="edit-monto_efectivo" name="monto_efectivo" step="0.01">
+                </div>
+
+                <div id="edit-monto-tarjeta-field" style="display:none;">
+                    <label for="edit-monto_tarjeta">Monto con Tarjeta:</label>
+                    <input type="number" id="edit-monto_tarjeta" name="monto_tarjeta" step="0.01">
                 </div>
             </div>
 
-            <div id="edit-feedback-message" class="form-message"></div>
+            <label for="edit-extra">Extra:</label>
+            <input type="number" id="edit-extra" name="extra" step="0.01">
 
-            <button type="submit" class="submit-button" style="background-color: var(--secondary-color);">Guardar Cambios</button>
+            <div id="edit-banco-field" style="display:none;">
+                <label for="edit-banco">Banco:</label>
+                <select id="edit-banco" name="banco">
+                    <!-- Opciones se cargarán dinámicamente -->
+                </select>
+            </div>
+
+            <label for="edit-lugar">Lugar:</label>
+            <select id="edit-lugar" name="lugar" required>
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-uber_ida">Uber Ida:</label>
+            <input type="number" id="edit-uber_ida" name="uber_ida" step="0.01">
+
+            <label for="edit-chofer_ida">Chofer Ida:</label>
+            <select id="edit-chofer_ida" name="chofer_ida">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <label for="edit-uber_regreso">Uber Regreso:</label>
+            <input type="number" id="edit-uber_regreso" name="uber_regreso" step="0.01">
+
+            <label for="edit-chofer_regreso">Chofer Regreso:</label>
+            <select id="edit-chofer_regreso" name="chofer_regreso">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+
+            <div style="margin-top: 20px;">
+                <input type="checkbox" id="edit-cancelado" name="cancelado">
+                <label for="edit-cancelado" style="display:inline; font-weight:normal;">Servicio Cancelado</label>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="submit" class="save-btn">Guardar Cambios</button>
+                <button type="button" class="cancel-btn" onclick="closeEditRecordModal()">Cancelar</button>
+            </div>
         </form>
+        <div id="edit-feedback-message" class="feedback-message"></div>
     </div>
 </div>
+
+<!-- Incluir los SDK de Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 
 <script src="app.js"></script>
 </body>

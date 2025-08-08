@@ -1,8 +1,6 @@
 // app.js
 
-// Firebase configuration (replace with your actual config)
-// La configuración ya está en el archivo HTML, así que se inicializa allí.
-
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyCUKWvB1_gs61H8Y58-swqfAl9Oujv7ARA",
     authDomain: "colombiasexysventas.firebaseapp.com",
@@ -27,45 +25,30 @@ const logoutButton = document.getElementById('logout-button');
 const userEmailSpan = document.getElementById('user-email');
 const userRoleSpan = document.getElementById('user-role');
 const serviceForm = document.getElementById('service-form');
+const empleadaField = document.getElementById('empleada-field');
+const empleadaButtonsContainer = document.getElementById('empleada-buttons-container');
+const empleadaUidSelectedInput = document.getElementById('empleada-uid-selected');
 const feedbackMessage = document.getElementById('feedback-message');
 const adminPanel = document.getElementById('admin-panel');
+const weekSelectorContainer = document.getElementById('week-selector-container');
+const currentWeekDisplay = document.getElementById('current-week-display');
+const prevWeekBtn = document.getElementById('prev-week-btn');
+const nextWeekBtn = document.getElementById('next-week-btn');
 
-// Elementos del nuevo formulario
+// Elementos del formulario dinámico de pagos
+const pagoEfectivoRadio = document.getElementById('pago-efectivo');
+const pagoTarjetaRadio = document.getElementById('pago-tarjeta');
+const pagoMixtoRadio = document.getElementById('pago-mixto');
+const montoEfectivoField = document.getElementById('monto-efectivo-field');
+const montoTarjetaField = document.getElementById('monto-tarjeta-field');
+const montoExtraInput = document.getElementById('extra');
+const bancoField = document.getElementById('banco-field');
 const totalServicioInput = document.getElementById('total_servicio');
-const metodoPagoRadios = document.querySelectorAll('input[name="metodo_pago"]');
-const pagoTarjetaContainer = document.getElementById('pago-tarjeta-container');
-const pagoMixtoContainer = document.getElementById('pago-mixto-container');
-const montoTarjetaInput = document.getElementById('monto_tarjeta');
-const montoMixtoTarjetaInput = document.getElementById('monto_mixto_tarjeta');
-const montoMixtoEfectivoInput = document.getElementById('monto_mixto_efectivo');
-const bancoSelect = document.getElementById('banco');
-const bancoMixtoSelect = document.getElementById('banco_mixto');
-const extraInput = document.getElementById('extra');
-const extraBancoContainer = document.getElementById('extra-banco-container');
-const extraBancoSelect = document.getElementById('extra_banco');
-const canceladoToggle = document.getElementById('cancelado-toggle');
 
-// Elementos para la sección de registros semanales
-const weeklyRecordsList = document.getElementById('weekly-records-list');
-
-// Elementos del modal de edición
-const editRecordModal = document.getElementById('editRecordModal');
-const editRecordForm = document.getElementById('edit-record-form');
-const editRecordIdInput = document.getElementById('edit-record-id');
-const editEmpleadaSelect = document.getElementById('edit-empleada');
-const editHorasServicioInput = document.getElementById('edit-horas_servicio');
-const editTotalServicioInput = document.getElementById('edit-total_servicio');
-const editMontoEfectivoInput = document.getElementById('edit-monto_efectivo');
-const editMontoTarjetaInput = document.getElementById('edit-monto_tarjeta');
-const editBancoSelect = document.getElementById('edit-banco');
-const editExtraInput = document.getElementById('edit-extra');
-const editLugarSelect = document.getElementById('edit-lugar');
-const editUberIdaInput = document.getElementById('edit-uber_ida');
-const editChoferIdaSelect = document.getElementById('edit-chofer_ida');
-const editUberRegresoInput = document.getElementById('edit-uber_regreso');
-const editChoferRegresoSelect = document.getElementById('edit-chofer_regreso');
-const editFeedbackMessage = document.getElementById('edit-feedback-message');
-const editCanceladoToggle = document.getElementById('edit-cancelado-toggle');
+// Elementos para la sección de registros
+const recordsSectionTitle = document.getElementById('records-section-title');
+const recordsList = document.getElementById('records-list');
+const officeRecordsView = document.getElementById('office-records-view');
 
 // Elementos para la sección de corte
 const cutSection = document.getElementById('cut-section');
@@ -74,19 +57,55 @@ const cutEmployeeSelect = document.getElementById('cut-employee-select');
 const generateCutButton = document.getElementById('generate-cut-button');
 const cutReportOutput = document.getElementById('cut-report-output');
 
-// Panel de administración
+// Elementos del modal de edición
+const editRecordModal = document.getElementById('editRecordModal');
+const editRecordForm = document.getElementById('edit-record-form');
+const editRecordIdInput = document.getElementById('edit-record-id');
+const editEmpleadaSelect = document.getElementById('edit-empleada');
+const editHorasServicioInput = document.getElementById('edit-horas_servicio');
+const editTotalServicioInput = document.getElementById('edit-total_servicio');
+// Campos dinámicos del modal de edición
+const editPagoRadios = document.querySelectorAll('input[name="edit_metodo_pago"]');
+const editMontoEfectivoField = document.getElementById('edit-monto-efectivo-field');
+const editMontoTarjetaField = document.getElementById('edit-monto-tarjeta-field');
+const editMontoEfectivoInput = document.getElementById('edit-monto_efectivo');
+const editMontoTarjetaInput = document.getElementById('edit-monto_tarjeta');
+const editExtraInput = document.getElementById('edit-extra');
+const editBancoField = document.getElementById('edit-banco-field');
+const editBancoSelect = document.getElementById('edit-banco');
+const editLugarSelect = document.getElementById('edit-lugar');
+const editUberIdaInput = document.getElementById('edit-uber_ida');
+const editChoferIdaSelect = document.getElementById('edit-chofer_ida');
+const editUberRegresoInput = document.getElementById('edit-uber_regreso');
+const editChoferRegresoSelect = document.getElementById('edit-chofer_regreso');
+const editCanceladoCheckbox = document.getElementById('edit-cancelado');
+const editFeedbackMessage = document.getElementById('edit-feedback-message');
+
+// Listas para el panel de administración
 const userList = document.getElementById('user-list');
 const oficinaList = document.getElementById('oficina-list');
 const lugaresListAdmin = document.getElementById('lugares-list');
 const bancosListAdmin = document.getElementById('bancos-list');
 const choferesListAdmin = document.getElementById('choferes-list');
 
-// Variables globales
+// NUEVOS ELEMENTOS para el formulario de creación de usuarios
+const createUserForm = document.getElementById('create-user-form');
+const createUserNameInput = document.getElementById('create-user-name');
+const createUserEmailInput = document.getElementById('create-user-email');
+const createUserOficinaSelect = document.getElementById('create-user-oficina');
+const createUserFeedback = document.getElementById('create-user-feedback');
+
+// Variables globales para almacenar las opciones de los dropdowns y datos
 let oficinasDisponibles = [];
+let empleadosPorOficina = {};
 let usuariosDisponibles = [];
 let unsubscribeFromRecords = null;
 let allRecordsData = [];
-const assignedColors = {}; // Para almacenar los colores de las empleadas
+let selectedEmpleadaUid = null;
+let currentWeek = null;
+let colorPalette = ['#34a853', '#4285f4', '#ea4335', '#fbbc05', '#8e24aa', '#00796b', '#d81b60', '#f48fb1', '#81c784'];
+let assignedColors = {};
+let currentUserData = null; // Variable global para almacenar los datos del usuario logueado
 
 // --- Funciones de Autenticación ---
 loginButton.addEventListener('click', () => {
@@ -97,52 +116,62 @@ logoutButton.addEventListener('click', () => {
     auth.signOut();
 });
 
-// Listener de estado de Autenticación
 auth.onAuthStateChanged(async user => {
     if (user) {
         authContainer.style.display = 'none';
-        mainContainer.style.display = 'flex';
+        mainContainer.style.display = 'block';
         userEmailSpan.textContent = user.email;
 
         try {
-            const userDoc = await db.collection('usuarios').doc(user.uid).get();
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                const rol = userData.rol || 'empleada';
-                userRoleSpan.textContent = rol.charAt(0).toUpperCase() + rol.slice(1);
-                user.customRole = rol;
-                user.oficinaRef = userData.oficina;
+            const userDocRef = db.collection('usuarios').doc(user.uid);
+            let userDoc = await userDocRef.get();
+            let userData = userDoc.data();
 
-                handleUserRole(user);
-                await cargarDatosFormulario(user);
+            if (!userDoc.exists) {
+                const userDocByEmailRef = db.collection('usuarios').doc(user.email);
+                let userDocByEmail = await userDocByEmailRef.get();
 
-                setupRecordsListener(user);
-
-                if (user.customRole === 'admin') {
-                    await loadCutSectionData();
+                if (userDocByEmail.exists) {
+                    userData = userDocByEmail.data();
+                    await userDocRef.set(userData, { merge: true });
+                    await userDocByEmailRef.delete();
+                    userDoc = await userDocRef.get();
+                } else {
+                    userData = {
+                        email: user.email,
+                        nombre: user.displayName || user.email.split('@')[0],
+                        rol: 'empleada',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await userDocRef.set(userData);
+                    mostrarMensaje('error', 'Tu rol no está configurado. Contacta al administrador.');
                 }
-
-            } else {
-                user.customRole = 'empleada';
-                userRoleSpan.textContent = 'Empleada (Pendiente de Asignación)';
-                handleUserRole(user);
-                await db.collection('usuarios').doc(user.uid).set({
-                    email: user.email,
-                    nombre: user.displayName || user.email.split('@')[0],
-                    rol: 'empleada',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                mostrarMensaje('error', 'Tu rol no está configurado. Contacta al administrador.');
-                await cargarDatosFormulario(user);
-                setupRecordsListener(user);
             }
+
+            const rol = userData.rol || 'empleada';
+            userRoleSpan.textContent = rol.charAt(0).toUpperCase() + rol.slice(1);
+            user.customRole = rol;
+            user.oficinaRef = userData.oficina;
+
+            // Almacenar los datos del usuario en una variable global
+            currentUserData = userData;
+
+            handleUserRole(user);
+            await cargarDatosFormulario(user);
+            currentWeek = getStartAndEndOfWeek(new Date());
+            setupRecordsListener(user);
+
+            if (user.customRole === 'admin') {
+                loadCutSectionData();
+            }
+
         } catch (error) {
             console.error("Error al obtener o configurar el rol del usuario:", error);
             mostrarMensaje('error', 'Error al cargar tu perfil. Inténtalo de nuevo.');
             auth.signOut();
         }
     } else {
-        authContainer.style.display = 'flex';
+        authContainer.style.display = 'block';
         mainContainer.style.display = 'none';
         userEmailSpan.textContent = '';
         userRoleSpan.textContent = '';
@@ -152,91 +181,71 @@ auth.onAuthStateChanged(async user => {
             unsubscribeFromRecords();
             unsubscribeFromRecords = null;
         }
-        weeklyRecordsList.innerHTML = '';
+        recordsList.innerHTML = '';
+        officeRecordsView.innerHTML = '';
         cutReportOutput.innerHTML = '<p>Selecciona una semana y una empleada para generar el reporte de corte.</p>';
         cutSection.style.display = 'none';
+        weekSelectorContainer.style.display = 'none';
+        recordsList.style.display = 'block';
+        officeRecordsView.style.display = 'none';
+        currentUserData = null; // Limpiar los datos del usuario al cerrar sesión
     }
 });
 
-// --- Lógica de interfaz basada en el rol del usuario ---
 function handleUserRole(user) {
-    // Título del formulario
-    document.getElementById('form-title').textContent = (user.customRole === 'jefe') ? 'Registro de Servicio (Oficina)' : 'Registro de Servicio (Empleada)';
-
-    // Si es jefe, mostrar botones de empleadas
     if (user.customRole === 'jefe') {
-        document.getElementById('empleada-selection').style.display = 'block';
+        empleadaField.style.display = 'block';
+        recordsList.style.display = 'none';
+        officeRecordsView.style.display = 'block';
+        recordsSectionTitle.textContent = 'Registros de la Oficina';
     } else {
-        document.getElementById('empleada-selection').style.display = 'none';
+        empleadaField.style.display = 'none';
+        recordsList.style.display = 'block';
+        officeRecordsView.style.display = 'none';
+        recordsSectionTitle.textContent = 'Registros de la Semana Actual';
     }
 
-    // Si es admin, mostrar el panel de administración y la sección de corte
     if (user.customRole === 'admin') {
         adminPanel.style.display = 'block';
         cutSection.style.display = 'block';
+        weekSelectorContainer.style.display = 'flex';
+        recordsList.style.display = 'block';
+        officeRecordsView.style.display = 'none';
+        recordsSectionTitle.textContent = 'Registros de Servicios';
         cargarPanelAdministracion();
     } else {
         adminPanel.style.display = 'none';
         cutSection.style.display = 'none';
+        weekSelectorContainer.style.display = 'none';
     }
 }
 
-// --- Lógica del nuevo formulario de pago ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Listener para los radios de método de pago
-    metodoPagoRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            const metodo = document.querySelector('input[name="metodo_pago"]:checked').value;
-            pagoTarjetaContainer.style.display = metodo === 'tarjeta' ? 'block' : 'none';
-            pagoMixtoContainer.style.display = metodo === 'mixto' ? 'block' : 'none';
-
-            // Limpiar los campos si se ocultan
-            if (metodo !== 'tarjeta') montoTarjetaInput.value = '';
-            if (metodo !== 'mixto') {
-                montoMixtoTarjetaInput.value = '';
-                montoMixtoEfectivoInput.value = '';
-            }
-        });
-    });
-
-    // Listener para el campo de extra
-    extraInput.addEventListener('input', () => {
-        const extraValue = parseFloat(extraInput.value) || 0;
-        extraBancoContainer.style.display = extraValue > 0 ? 'block' : 'none';
-    });
-});
-
-// --- Cargar opciones para los menús desplegables del formulario de servicio ---
 async function cargarDatosFormulario(user) {
     try {
-        // Cargar Lugares
         const lugaresSelect = document.getElementById('lugar');
         lugaresSelect.innerHTML = '<option value="">Selecciona un lugar</option>';
-        const lugaresSnapshot = await db.collection('lugares').orderBy('nombre').get();
-        lugaresSnapshot.forEach(doc => {
-            lugaresSelect.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`;
-        });
-
-        // Cargar Bancos para todos los selects de bancos
-        const bancosSnapshot = await db.collection('bancos').orderBy('nombre').get();
-        const bancosHtml = '<option value="">Selecciona un banco</option>' +
-            bancosSnapshot.docs.map(doc => `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`).join('');
-        bancoSelect.innerHTML = bancosHtml;
-        bancoMixtoSelect.innerHTML = bancosHtml;
-        extraBancoSelect.innerHTML = bancosHtml;
-
-        // Cargar Choferes
+        const bancosSelect = document.getElementById('banco');
+        bancosSelect.innerHTML = '<option value="">Selecciona un banco</option>';
         const choferesSelectIda = document.getElementById('chofer_ida');
         const choferesSelectRegreso = document.getElementById('chofer_regreso');
-        const choferesSnapshot = await db.collection('choferes').orderBy('nombre').get();
-        const choferesHtml = '<option value="">Selecciona un chofer</option>' +
-            choferesSnapshot.docs.map(doc => `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`).join('');
-        choferesSelectIda.innerHTML = choferesHtml;
-        choferesSelectRegreso.innerHTML = choferesHtml;
+        choferesSelectIda.innerHTML = '<option value="">Selecciona un chofer</option>';
+        choferesSelectRegreso.innerHTML = '<option value="">Selecciona un chofer</option>';
 
-        // Cargar Empleadas (solo si el rol es 'jefe')
+        const [lugaresSnapshot, bancosSnapshot, choferesSnapshot] = await Promise.all([
+            db.collection('lugares').orderBy('nombre').get(),
+            db.collection('bancos').orderBy('nombre').get(),
+            db.collection('choferes').orderBy('nombre').get()
+        ]);
+
+        lugaresSnapshot.forEach(doc => lugaresSelect.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`);
+        bancosSnapshot.forEach(doc => bancosSelect.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`);
+        choferesSnapshot.forEach(doc => {
+            choferesSelectIda.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`;
+            choferesSelectRegreso.innerHTML += `<option value="${doc.data().nombre}">${doc.data().nombre}</option>`;
+        });
+
         if (user.customRole === 'jefe') {
-            const empleadaButtonsContainer = document.getElementById('empleada-buttons');
+            empleadosPorOficina = {};
             empleadaButtonsContainer.innerHTML = '';
             if (user.oficinaRef) {
                 const empleadasSnapshot = await db.collection('usuarios')
@@ -246,22 +255,28 @@ async function cargarDatosFormulario(user) {
                     .get();
 
                 empleadasSnapshot.forEach(doc => {
-                    const empleadaId = doc.id;
-                    const empleadaName = doc.data().nombre || doc.data().email.split('@')[0];
-                    let color = assignedColors[empleadaId];
-                    if (!color) {
-                        color = getRandomColor();
-                        assignedColors[empleadaId] = color;
+                    const empleado = { id: doc.id, ...doc.data() };
+
+                    let empleadoColor = localStorage.getItem(`color_${empleado.id}`);
+                    if (!empleadoColor) {
+                        empleadoColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                        localStorage.setItem(`color_${empleado.id}`, empleadoColor);
                     }
+                    assignedColors[doc.id] = empleadoColor;
+
+                    empleadosPorOficina[doc.id] = empleado;
+
                     const button = document.createElement('button');
-                    button.textContent = empleadaName;
-                    button.className = 'empleada-button';
-                    button.setAttribute('data-uid', empleadaId);
-                    button.style.backgroundColor = color;
+                    button.textContent = empleado.nombre || empleado.email.split('@')[0];
+                    button.classList.add('empleada-btn');
+                    button.style.backgroundColor = empleadoColor;
+                    button.setAttribute('data-uid', empleado.id);
                     button.addEventListener('click', (e) => {
                         e.preventDefault();
-                        document.querySelectorAll('.empleada-button').forEach(btn => btn.classList.remove('active'));
-                        button.classList.add('active');
+                        document.querySelectorAll('.empleada-btn').forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                        empleadaUidSelectedInput.value = empleado.id;
+                        selectedEmpleadaUid = empleado.id;
                     });
                     empleadaButtonsContainer.appendChild(button);
                 });
@@ -275,112 +290,139 @@ async function cargarDatosFormulario(user) {
     }
 }
 
-// --- Generar un color aleatorio para los botones de empleadas ---
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-// --- Lógica de Envío del Formulario de Servicio ---
 serviceForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
     const userRole = user.customRole;
 
-    const totalServicio = parseFloat(totalServicioInput.value) || 0;
-    const extra = parseFloat(extraInput.value) || 0;
+    let noServicio = 1;
+    let employeeUidToQuery;
+    if (userRole === 'jefe') {
+        employeeUidToQuery = empleadaUidSelectedInput.value;
+    } else {
+        employeeUidToQuery = user.uid;
+    }
+
+    if (!employeeUidToQuery) {
+        mostrarMensaje('error', 'Por favor, selecciona una trabajadora.');
+        return;
+    }
+
+    try {
+        const querySnapshot = await db.collection('registros')
+            .where('uid', '==', user.uid)
+            .where('uid_empleada', '==', employeeUidToQuery)
+            .where('fecha', '>=', getStartAndEndOfWeek(new Date()).start)
+            .where('fecha', '<=', getStartAndEndOfWeek(new Date()).end)
+            .orderBy('fecha', 'desc')
+            .orderBy('no_servicio', 'desc')
+            .limit(1)
+            .get();
+
+        if (!querySnapshot.empty) {
+            const lastRecord = querySnapshot.docs[0].data();
+            noServicio = (lastRecord.no_servicio || 0) + 1;
+        }
+    } catch (error) {
+        console.error("Error al obtener el número de servicio consecutivo:", error);
+        mostrarMensaje('error', 'Error al obtener el número de servicio. Inténtalo de nuevo.');
+        return;
+    }
+
+
     const metodoPago = document.querySelector('input[name="metodo_pago"]:checked').value;
+    let montoEfectivo = (metodoPago === 'efectivo' || metodoPago === 'mixto') ? parseFloat(document.getElementById('monto_efectivo').value) || 0 : 0;
+    let montoTarjeta = (metodoPago === 'mixto') ? parseFloat(document.getElementById('monto_tarjeta').value) || 0 : 0;
+    const totalServicio = parseFloat(document.getElementById('total_servicio').value) || 0;
 
-    let montoEfectivo = 0;
-    let montoTarjeta = 0;
-    let banco = '';
-    let extraBanco = '';
-
-    if (metodoPago === 'efectivo') {
-        montoEfectivo = totalServicio;
-    } else if (metodoPago === 'tarjeta') {
+    if (metodoPago === 'tarjeta') {
         montoTarjeta = totalServicio;
-        banco = bancoSelect.value;
-    } else if (metodoPago === 'mixto') {
-        montoEfectivo = parseFloat(montoMixtoEfectivoInput.value) || 0;
-        montoTarjeta = parseFloat(montoMixtoTarjetaInput.value) || 0;
-        banco = bancoMixtoSelect.value;
+        montoEfectivo = 0;
     }
 
-    if (extra > 0) {
-        extraBanco = extraBancoSelect.value;
-    }
+    const banco = (metodoPago !== 'efectivo' || parseFloat(document.getElementById('extra').value) > 0) ? document.getElementById('banco').value : '';
+
+    // CORRECCIÓN: Usar el nombre del usuario desde la variable global currentUserData
+    const registradorNombre = currentUserData.nombre || user.email.split('@')[0];
 
     const formData = {
         fecha: firebase.firestore.FieldValue.serverTimestamp(),
+        no_servicio: noServicio,
         horas_servicio: parseFloat(document.getElementById('horas_servicio').value) || 0,
         total_servicio: totalServicio,
+        metodo_pago: metodoPago,
         monto_efectivo: montoEfectivo,
         monto_tarjeta: montoTarjeta,
         banco: banco,
-        extra: extra,
-        extra_banco: extraBanco, // Nuevo campo para el banco del extra
+        extra: parseFloat(document.getElementById('extra').value) || 0,
         lugar: document.getElementById('lugar').value,
         uber_ida: parseFloat(document.getElementById('uber_ida').value) || 0,
         chofer_ida: document.getElementById('chofer_ida').value,
         uber_regreso: parseFloat(document.getElementById('uber_regreso').value) || 0,
         chofer_regreso: document.getElementById('chofer_regreso').value,
-        cancelado: canceladoToggle.checked, // Nuevo campo
+        cancelado: document.getElementById('cancelado').checked,
         uid: user.uid,
         email_registrador: user.email,
         rol_registrador: userRole,
-        nombre_registrador: user.displayName || user.email.split('@')[0],
-        metodo_pago: metodoPago // Nuevo campo para el método de pago
+        nombre_registrador: registradorNombre,
+        uid_empleada: user.uid,
+        email_empleada: user.email,
+        nombre_empleada: user.displayName || user.email.split('@')[0]
     };
 
-    let empleadaUidSeleccionada = '';
-
     if (userRole === 'jefe') {
-        const activeEmpleadaButton = document.querySelector('.empleada-button.active');
-        if (!activeEmpleadaButton) {
-            mostrarMensaje('error', 'Por favor, selecciona una empleada.');
+        const empleadaUidSeleccionada = empleadaUidSelectedInput.value;
+        if (!empleadaUidSeleccionada) {
+            mostrarMensaje('error', 'Por favor, selecciona una trabajadora.');
             return;
         }
-        empleadaUidSeleccionada = activeEmpleadaButton.getAttribute('data-uid');
-        const empleadaDoc = await db.collection('usuarios').doc(empleadaUidSeleccionada).get();
-        if (!empleadaDoc.exists) {
+        const empleadaData = empleadosPorOficina[empleadaUidSeleccionada];
+        if (!empleadaData) {
             mostrarMensaje('error', 'La empleada seleccionada no es válida.');
             return;
         }
-        const empleadaData = empleadaDoc.data();
         formData.uid_empleada = empleadaUidSeleccionada;
         formData.email_empleada = empleadaData.email;
         formData.nombre_empleada = empleadaData.nombre || empleadaData.email.split('@')[0];
-    } else {
-        formData.uid_empleada = user.uid;
-        formData.email_empleada = user.email;
-        formData.nombre_empleada = user.displayName || user.email.split('@')[0];
     }
 
     try {
         await db.collection('registros').add(formData);
         serviceForm.reset();
-        canceladoToggle.checked = false; // Resetear el toggle
-        pagoTarjetaContainer.style.display = 'none';
-        pagoMixtoContainer.style.display = 'none';
-        extraBancoContainer.style.display = 'none';
-        document.querySelector('input[name="metodo_pago"][value="efectivo"]').checked = true;
-
+        pagoEfectivoRadio.checked = true;
+        handlePaymentMethodChange();
+        empleadaUidSelectedInput.value = '';
+        selectedEmpleadaUid = null;
+        document.querySelectorAll('.empleada-btn').forEach(btn => btn.classList.remove('selected'));
         mostrarMensaje('success', '✅ Servicio registrado con éxito!');
-        if (userRole === 'jefe') {
-            document.querySelectorAll('.empleada-button').forEach(btn => btn.classList.remove('active'));
-        }
     } catch (error) {
         console.error("Error al registrar el servicio:", error);
         mostrarMensaje('error', '❌ Error al registrar el servicio. Inténtalo de nuevo.');
     }
 });
 
-// --- Funciones auxiliares ---
+document.querySelectorAll('input[name="metodo_pago"]').forEach(radio => {
+    radio.addEventListener('change', handlePaymentMethodChange);
+});
+document.getElementById('extra').addEventListener('input', handlePaymentMethodChange);
+totalServicioInput.addEventListener('input', handlePaymentMethodChange);
+
+function handlePaymentMethodChange() {
+    const metodoPago = document.querySelector('input[name="metodo_pago"]:checked').value;
+    const extraValue = parseFloat(document.getElementById('extra').value) || 0;
+    const totalServicio = parseFloat(document.getElementById('total_servicio').value) || 0;
+
+    montoEfectivoField.style.display = (metodoPago === 'mixto') ? 'block' : 'none';
+    montoTarjetaField.style.display = (metodoPago === 'mixto') ? 'block' : 'none';
+    bancoField.style.display = (metodoPago === 'tarjeta' || metodoPago === 'mixto' || extraValue > 0) ? 'block' : 'none';
+
+    if (metodoPago === 'tarjeta') {
+        document.getElementById('monto_tarjeta').value = totalServicio;
+    }
+}
+
+handlePaymentMethodChange();
+
 function mostrarMensaje(tipo, mensaje) {
     feedbackMessage.textContent = mensaje;
     feedbackMessage.className = '';
@@ -391,7 +433,6 @@ function mostrarMensaje(tipo, mensaje) {
     }, 5000);
 }
 
-// --- Lógica del Panel de Administración ---
 async function cargarPanelAdministracion() {
     try {
         oficinasDisponibles = [];
@@ -400,6 +441,13 @@ async function cargarPanelAdministracion() {
             oficinasDisponibles.push({ id: doc.id, ...doc.data() });
         });
         renderOficinaList();
+
+        const oficinasSelect = createUserOficinaSelect;
+        oficinasSelect.innerHTML = '<option value="">Sin Oficina</option>';
+        oficinasDisponibles.forEach(oficina => {
+            oficinasSelect.innerHTML += `<option value="${oficina.id}">${oficina.nombre}</option>`;
+        });
+
 
         usuariosDisponibles = [];
         const usersSnapshot = await db.collection('usuarios').get();
@@ -417,6 +465,49 @@ async function cargarPanelAdministracion() {
     }
 }
 
+createUserForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nombre = createUserNameInput.value.trim();
+    const email = createUserEmailInput.value.trim();
+    const oficinaId = createUserOficinaSelect.value;
+
+    if (!nombre || !email || !oficinaId) {
+        mostrarMensajeEnAdminPanel('error', 'Por favor, completa todos los campos.');
+        return;
+    }
+
+    const oficinaRef = db.collection('oficinas').doc(oficinaId);
+
+    try {
+        const userDocRef = db.collection('usuarios').doc(email);
+        await userDocRef.set({
+            email: email,
+            nombre: nombre,
+            rol: 'empleada',
+            oficina: oficinaRef,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        mostrarMensajeEnAdminPanel('success', `Usuario ${nombre} agregado con éxito.`);
+        createUserForm.reset();
+        await cargarPanelAdministracion();
+
+    } catch (error) {
+        console.error("Error al crear un nuevo usuario:", error);
+        mostrarMensajeEnAdminPanel('error', 'Error al crear el usuario. Podría ya existir o haber un error.');
+    }
+});
+
+function mostrarMensajeEnAdminPanel(tipo, mensaje) {
+    createUserFeedback.textContent = mensaje;
+    createUserFeedback.className = '';
+    createUserFeedback.classList.add(tipo);
+    createUserFeedback.style.display = 'block';
+    setTimeout(() => {
+        createUserFeedback.style.display = 'none';
+    }, 5000);
+}
+
 function renderUserList() {
     userList.innerHTML = '';
     usuariosDisponibles.forEach(user => {
@@ -429,7 +520,6 @@ function renderUserList() {
         userList.appendChild(li);
     });
 }
-
 function renderOficinaList() {
     oficinaList.innerHTML = '';
     oficinasDisponibles.forEach(oficina => {
@@ -441,7 +531,6 @@ function renderOficinaList() {
         `;
     });
 }
-
 async function cargarYRenderizarCatalogo(coleccion, ulElement) {
     ulElement.innerHTML = '';
     const snapshot = await db.collection(coleccion).orderBy('nombre').get();
@@ -454,7 +543,6 @@ async function cargarYRenderizarCatalogo(coleccion, ulElement) {
         `;
     });
 }
-
 let usuarioEditandoId = null;
 function mostrarEditarUsuario(userId) {
     usuarioEditandoId = userId;
@@ -486,7 +574,6 @@ function mostrarEditarUsuario(userId) {
     `;
     li.appendChild(editForm);
 }
-
 async function guardarCambiosUsuario(userId) {
     const newRol = document.getElementById(`edit-rol-${userId}`).value;
     const newOficinaId = document.getElementById(`edit-oficina-${userId}`).value;
@@ -495,33 +582,23 @@ async function guardarCambiosUsuario(userId) {
         oficinaRef = db.collection('oficinas').doc(newOficinaId);
     }
     try {
-        await db.collection('usuarios').doc(userId).update({
-            rol: newRol,
-            oficina: oficinaRef
-        });
+        await db.collection('usuarios').doc(userId).update({ rol: newRol, oficina: oficinaRef });
         mostrarMensaje('success', `Usuario ${usuariosDisponibles.find(u => u.id === userId).email} actualizado.`);
         await cargarPanelAdministracion();
     } catch (error) {
         console.error("Error al actualizar usuario:", error);
         mostrarMensaje('error', 'Error al actualizar usuario.');
-    } finally {
-        usuarioEditandoId = null;
-    }
+    } finally { usuarioEditandoId = null; }
 }
-
 function cancelarEdicionUsuario(userId) {
     const li = userList.querySelector(`li button[onclick="mostrarEditarUsuario('${userId}')"]`).parentNode;
     const editForm = li.querySelector('.edit-user-form');
     if (editForm) editForm.remove();
     usuarioEditandoId = null;
 }
-
 async function agregarOficina() {
     const nombre = document.getElementById('nueva-oficina-nombre').value.trim();
-    if (!nombre) {
-        mostrarMensaje('error', 'El nombre de la oficina es obligatorio.');
-        return;
-    }
+    if (!nombre) { mostrarMensaje('error', 'El nombre de la oficina es obligatorio.'); return; }
     const oficinaId = nombre.toUpperCase().replace(/\s/g, '_');
     try {
         await db.collection('oficinas').doc(oficinaId).set({ nombre: nombre });
@@ -529,23 +606,22 @@ async function agregarOficina() {
         document.getElementById('nueva-oficina-nombre').value = '';
         await cargarPanelAdministracion();
     } catch (error) {
-        console.error("Error al agregar oficina:", error);
+        console.error(`Error al agregar oficina: ${error.message}`);
         mostrarMensaje('error', 'Error al agregar oficina. Podría ya existir o haber un error de permisos.');
     }
 }
-
 async function eliminarOficina(oficinaId) {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta oficina? Esto NO eliminará a los usuarios asociados, solo desvinculará su referencia.')) return;
-    try {
-        await db.collection('oficinas').doc(oficinaId).delete();
-        mostrarMensaje('success', `Oficina eliminada.`);
-        await cargarPanelAdministracion();
-    } catch (error) {
-        console.error("Error al eliminar oficina:", error);
-        mostrarMensaje('error', 'Error al eliminar oficina.');
-    }
+    showCustomModal('¿Estás seguro de que quieres eliminar esta oficina? Esto NO eliminará a los usuarios asociados, solo desvinculará su referencia.', async () => {
+        try {
+            await db.collection('oficinas').doc(oficinaId).delete();
+            mostrarMensaje('success', `Oficina eliminada.`);
+            await cargarPanelAdministracion();
+        } catch (error) {
+            console.error(`Error al eliminar oficina: ${error.message}`);
+            mostrarMensaje('error', `Error al eliminar de ${coleccion}.`);
+        }
+    });
 }
-
 async function agregarCatalogo(coleccion, nombreInputId) {
     const inputElement = document.getElementById(nombreInputId);
     if (!inputElement) {
@@ -566,115 +642,128 @@ async function agregarCatalogo(coleccion, nombreInputId) {
         await cargarDatosFormulario(auth.currentUser);
         await cargarYRenderizarCatalogo(coleccion, document.getElementById(`${coleccion}-list`));
     } catch (error) {
-        console.error(`Error al agregar a ${coleccion}:`, error);
+        console.error(`Error al agregar a ${coleccion}: ${error.message}`);
         mostrarMensaje('error', `Error al agregar a ${coleccion}. Podría ya existir o haber un error de permisos.`);
     }
 }
-
 async function eliminarCatalogo(coleccion, id) {
-    if (!confirm(`¿Estás seguro de que quieres eliminar este elemento de ${coleccion}?`)) return;
-    try {
-        await db.collection(coleccion).doc(id).delete();
-        mostrarMensaje('success', `Elemento de ${coleccion} eliminado.`);
-        await cargarDatosFormulario(auth.currentUser);
-        await cargarYRenderizarCatalogo(coleccion, document.getElementById(`${coleccion}-list`));
-    } catch (error) {
-        console.error(`Error al eliminar de ${coleccion}:`, error);
-        mostrarMensaje('error', `Error al eliminar de ${coleccion}.`);
+    showCustomModal(`¿Estás seguro de que quieres eliminar este elemento de ${coleccion}?`, async () => {
+        try {
+            await db.collection(coleccion).doc(id).delete();
+            mostrarMensaje('success', `Elemento de ${coleccion} eliminado.`);
+            await cargarDatosFormulario(auth.currentUser);
+            await cargarYRenderizarCatalogo(coleccion, document.getElementById(`${coleccion}-list`));
+        } catch (error) {
+            console.error(`Error al eliminar de ${coleccion}: ${error.message}`);
+            mostrarMensaje('error', `Error al eliminar de ${coleccion}.`);
+        }
+    });
+}
+function showCustomModal(message, callback) {
+    if (window.confirm(message)) {
+        callback();
     }
 }
-
-// --- Función para obtener el inicio y fin de la semana actual ---
-function getStartAndEndOfCurrentWeek() {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // Establecer la hora a la medianoche
-
-    // Obtener el día de la semana (0=Domingo, 1=Lunes, ...)
-    const dayOfWeek = now.getDay();
-
-    // Calcular el inicio de la semana (Lunes)
-    // Ajuste para que 0 (Domingo) se trate como 7
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - daysToSubtract);
-
-    // Calcular el final de la semana (Domingo)
+function getStartAndEndOfWeek(date) {
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    const startOfWeek = new Date(date.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
-
-    return {
-        start: startOfWeek,
-        end: endOfWeek
-    };
+    return { start: startOfWeek, end: endOfWeek, weekNumber: getWeekNumber(startOfWeek) };
 }
 
+prevWeekBtn.addEventListener('click', () => {
+    currentWeek.start.setDate(currentWeek.start.getDate() - 7);
+    currentWeek.end.setDate(currentWeek.end.getDate() - 7);
+    currentWeek.weekNumber = getWeekNumber(currentWeek.start);
+    const user = auth.currentUser;
+    if (user && user.customRole === 'admin') {
+        renderFilteredRecordsForAdmin();
+    }
+});
 
-// --- Función para configurar el listener de registros ---
+nextWeekBtn.addEventListener('click', () => {
+    currentWeek.start.setDate(currentWeek.start.getDate() + 7);
+    currentWeek.end.setDate(currentWeek.end.getDate() + 7);
+    currentWeek.weekNumber = getWeekNumber(currentWeek.start);
+    const user = auth.currentUser;
+    if (user && user.customRole === 'admin') {
+        renderFilteredRecordsForAdmin();
+    }
+});
+
 async function setupRecordsListener(user) {
     if (unsubscribeFromRecords) {
         unsubscribeFromRecords();
     }
 
-    // Obtener el inicio y fin de la semana actual
-    const { start, end } = getStartAndEndOfCurrentWeek();
-    let recordsQuery = db.collection('registros')
-        .where('fecha', '>=', start)
-        .where('fecha', '<=', end)
-        .orderBy('fecha', 'desc');
+    let recordsQuery;
+    const { start, end } = getStartAndEndOfWeek(new Date());
 
-    if (user.customRole === 'empleada') {
-        recordsQuery = recordsQuery.where('uid_empleada', '==', user.uid);
+    if (user.customRole === 'admin') {
+        recordsQuery = db.collection('registros').orderBy('fecha', 'desc');
+    } else if (user.customRole === 'empleada') {
+        recordsQuery = db.collection('registros')
+            .where('uid', '==', user.uid)
+            .where('fecha', '>=', start)
+            .where('fecha', '<=', end)
+            .orderBy('fecha', 'desc');
     } else if (user.customRole === 'jefe') {
-        // La regla de seguridad ya se encarga de filtrar lo que el jefe puede leer.
-        // No añadimos aquí un filtro adicional porque `registros` no tiene un campo de oficina.
-        // El filtro de la semana es suficiente.
+        recordsQuery = db.collection('registros')
+            .where('uid', '==', user.uid)
+            .where('fecha', '>=', start)
+            .where('fecha', '<=', end)
+            .orderBy('fecha', 'desc');
+    }
+
+    if (!recordsQuery) {
+        console.error("recordsQuery is not defined. This should not happen.");
+        return;
     }
 
     unsubscribeFromRecords = recordsQuery.onSnapshot(async (snapshot) => {
-        weeklyRecordsList.innerHTML = '';
         allRecordsData = [];
-
         const allUsersSnapshot = await db.collection('usuarios').get();
         const allUsersMap = new Map();
-        allUsersSnapshot.forEach(doc => {
-            allUsersMap.set(doc.id, doc.data());
-        });
+        allUsersSnapshot.forEach(doc => { allUsersMap.set(doc.id, doc.data()); });
 
         snapshot.forEach(doc => {
             const record = doc.data();
             const recordId = doc.id;
-            const date = record.fecha ? record.fecha.toDate().toLocaleString() : 'Fecha no disponible';
-
             const empleadaData = allUsersMap.get(record.uid_empleada);
             const nombreEmpleada = empleadaData ? (empleadaData.nombre || empleadaData.email) : 'Desconocida';
-
             allRecordsData.push({ id: recordId, ...record, nombre_empleada_display: nombreEmpleada });
-
-            const li = document.createElement('li');
-            li.className = `record-item ${record.cancelado ? 'canceled' : ''}`;
-            li.innerHTML = `
-                <p><strong>Trabajadora:</strong> <span class="record-value">${nombreEmpleada}</span></p>
-                <p><strong>Total del Servicio:</strong> <span class="record-value">$${record.total_servicio.toFixed(2)}</span></p>
-                <p><strong>Método de Pago:</strong> <span class="record-value">${record.metodo_pago}</span></p>
-                ${record.monto_efectivo > 0 ? `<p><strong>Monto Efectivo:</strong> <span class="record-value">$${record.monto_efectivo.toFixed(2)}</span></p>` : ''}
-                ${record.monto_tarjeta > 0 ? `<p><strong>Monto Tarjeta:</strong> <span class="record-value">$${record.monto_tarjeta.toFixed(2)} (${record.banco || 'N/A'})</span></p>` : ''}
-                <p><strong>Extra:</strong> <span class="record-value">$${record.extra.toFixed(2)} ${record.extra > 0 ? `(${record.extra_banco || 'N/A'})` : ''}</span></p>
-                <p><strong>Lugar:</strong> <span class="record-value">${record.lugar}</span></p>
-                <p><strong>Uber Ida:</strong> <span class="record-value">$${record.uber_ida.toFixed(2)} (${record.chofer_ida || 'N/A'})</span></p>
-                <p><strong>Uber Regreso:</strong> <span class="record-value">$${record.uber_regreso.toFixed(2)} (${record.chofer_regreso || 'N/A'})</span></p>
-                ${record.cancelado ? `<p><strong>Estado:</strong> <span class="record-value">CANCELADO</span></p>` : ''}
-                <div class="record-meta">
-                    <p>Registrado por: ${record.nombre_registrador} el ${date}</p>
-                </div>
-                <!-- Solo el autor del registro puede editarlo en la semana actual -->
-                ${user.uid === record.uid ? `<button onclick="editRecord('${recordId}')">Editar</button>` : ''}
-            `;
-            weeklyRecordsList.appendChild(li);
         });
 
-        if (snapshot.empty) {
-            weeklyRecordsList.innerHTML = '<p>No hay registros de servicios para esta semana.</p>';
+        if (user.customRole === 'jefe') {
+            const { start, end } = getStartAndEndOfWeek(new Date());
+            const filteredForJefe = allRecordsData.filter(record => {
+                if (!record.fecha || !record.fecha.toDate) return false;
+                const recordDate = record.fecha.toDate();
+                return recordDate >= start && recordDate <= end;
+            });
+            renderOfficeRecords(filteredForJefe, allUsersMap);
+        } else if (user.customRole === 'empleada') {
+            const { start, end } = getStartAndEndOfWeek(new Date());
+            const filteredForEmpleada = allRecordsData.filter(record => {
+                if (!record.fecha || !record.fecha.toDate) return false;
+                const recordDate = record.fecha.toDate();
+                return recordDate >= start && recordDate <= end && record.uid === user.uid;
+            });
+            renderRecordsList(filteredForEmpleada, user, allUsersMap);
+        } else if (user.customRole === 'admin') {
+            renderFilteredRecordsForAdmin();
+        }
+
+        if (allRecordsData.length === 0) {
+            if (user.customRole === 'jefe') {
+                document.querySelector('#office-records-view .employee-columns').innerHTML = '<p style="text-align:center;">No hay registros de servicios esta semana.</p>';
+            } else {
+                recordsList.innerHTML = '<p>No hay registros de servicios esta semana.</p>';
+            }
         }
 
         if (user.customRole === 'admin') {
@@ -684,68 +773,175 @@ async function setupRecordsListener(user) {
     }, (error) => {
         console.error("Error al cargar registros:", error);
         mostrarMensaje('error', 'Error al cargar los registros de servicios. Permisos insuficientes.');
-        weeklyRecordsList.innerHTML = '<p>Error al cargar los registros. Verifica tus permisos.</p>';
+        recordsList.innerHTML = '<p>Error al cargar los registros. Verifica tus permisos.</p>';
     });
 }
 
+function renderFilteredRecordsForAdmin() {
+    const { start, end, weekNumber } = currentWeek;
+    currentWeekDisplay.textContent = `Semana ${weekNumber}: del ${start.toLocaleDateString()} al ${end.toLocaleDateString()}`;
 
-// --- Lógica para la sección de Corte (solo para Administradores) ---
+    const filteredForDisplay = allRecordsData.filter(record => {
+        if (!record.fecha || !record.fecha.toDate) return false;
+        const recordDate = record.fecha.toDate();
+        return recordDate >= start && recordDate <= end;
+    });
+
+    const allUsersMap = new Map();
+    db.collection('usuarios').get().then(snapshot => {
+        snapshot.forEach(doc => allUsersMap.set(doc.id, doc.data()));
+        renderRecordsList(filteredForDisplay, auth.currentUser, allUsersMap);
+    });
+}
+
+function renderRecordsList(records, user, allUsersMap) {
+    recordsList.innerHTML = '';
+
+    if (records.length === 0) {
+        recordsList.innerHTML = '<p>No hay registros de servicios para la semana seleccionada.</p>';
+        return;
+    }
+
+    records.forEach(record => {
+        const recordId = record.id;
+        const date = record.fecha ? record.fecha.toDate().toLocaleString() : 'Fecha no disponible';
+        const empleadaData = allUsersMap.get(record.uid_empleada);
+        const nombreEmpleada = empleadaData ? (empleadaData.nombre || empleadaData.email) : 'Desconocida';
+        const canEdit = user.customRole === 'admin' || record.uid === user.uid;
+
+        const li = document.createElement('li');
+        li.className = 'record-item';
+        li.innerHTML = `
+            <p><strong>Trabajadora:</strong> <span class="record-value">${nombreEmpleada}</span></p>
+            <p><strong>Horas:</strong> <span class="record-value">${record.horas_servicio}</span></p>
+            <p><strong>Total:</strong> <span class="record-value">$${record.total_servicio.toFixed(2)}</span></p>
+            <p><strong>Método:</strong> <span class="record-value">${record.metodo_pago.charAt(0).toUpperCase() + record.metodo_pago.slice(1)}</span></p>
+            <p><strong>Efectivo:</strong> <span class="record-value">$${record.monto_efectivo.toFixed(2)}</span></p>
+            <p><strong>Tarjeta:</strong> <span class="record-value">$${record.monto_tarjeta.toFixed(2)}</span></p>
+            <p><strong>Banco:</strong> <span class="record-value">${record.banco || 'N/A'}</span></p>
+            <p><strong>Extra:</strong> <span class="record-value">$${record.extra.toFixed(2)}</span></p>
+            <p><strong>Lugar:</strong> <span class="record-value">${record.lugar}</span></p>
+            <p><strong>Uber Ida:</strong> <span class="record-value">$${record.uber_ida.toFixed(2)}</span></p>
+            <p><strong>Chofer Ida:</strong> <span class="record-value">${record.chofer_ida || 'N/A'}</span></p>
+            <p><strong>Uber Regreso:</strong> <span class="record-value">$${record.uber_regreso.toFixed(2)}</span></p>
+            <p><strong>Chofer Regreso:</strong> <span class="record-value">${record.chofer_regreso || 'N/A'}</span></p>
+            ${record.cancelado ? '<p style="color: red; font-weight: bold; margin-top: 5px;">ESTADO: CANCELADO</p>' : ''}
+            <div class="record-meta">
+                <p>Registrado por: ${record.nombre_registrador} el ${date}</p>
+            </div>
+            ${canEdit ? `<button onclick="editRecord('${recordId}')" style="background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-top: 10px;">Editar</button>` : ''}
+        `;
+        recordsList.appendChild(li);
+    });
+}
+
+// Función para renderizar los registros en columnas (para el rol de Jefe)
+function renderOfficeRecords(records, allUsersMap) {
+    const employeeColumnsContainer = document.querySelector('#office-records-view .employee-columns');
+    employeeColumnsContainer.innerHTML = '';
+
+    const recordsByEmployee = {};
+    // Agregamos el UID del jefe a la lista para mostrar sus propios registros en una columna separada
+    recordsByEmployee[auth.currentUser.uid] = [];
+    Object.values(empleadosPorOficina).forEach(empleado => recordsByEmployee[empleado.id] = []);
+
+    records.forEach(record => {
+        if (recordsByEmployee[record.uid_empleada]) {
+            recordsByEmployee[record.uid_empleada].push(record);
+        }
+    });
+
+    // Filtramos para asegurarnos de que solo se muestren las columnas con registros
+    const employeesWithRecords = Object.keys(recordsByEmployee).filter(uid => recordsByEmployee[uid].length > 0);
+
+    if (employeesWithRecords.length === 0) {
+        employeeColumnsContainer.innerHTML = '<p style="text-align:center;">No hay registros de servicios esta semana.</p>';
+        return;
+    }
+
+    employeesWithRecords.forEach(empleadoUid => {
+        const empleado = empleadosPorOficina[empleadoUid] || {nombre: 'Oficina', id: auth.currentUser.uid, color_boton: '#4285f4'};
+        const columna = document.createElement('div');
+        columna.className = 'employee-column';
+
+        const header = document.createElement('h3');
+        header.textContent = empleado.nombre || empleado.email.split('@')[0];
+        // Usamos el color asignado o un color predeterminado para la oficina
+        header.style.backgroundColor = assignedColors[empleado.id] || empleado.color_boton;
+        columna.appendChild(header);
+
+        const recordList = document.createElement('ul');
+        recordList.style.listStyle = 'none';
+        recordList.style.padding = '0';
+        recordList.style.minHeight = '150px';
+
+        recordsByEmployee[empleadoUid].forEach(record => {
+            const li = document.createElement('li');
+            li.className = 'record-item';
+            li.style.borderLeft = `5px solid ${assignedColors[record.uid_empleada] || empleado.color_boton}`;
+            li.style.paddingLeft = '15px';
+            li.style.borderRadius = '5px';
+
+            const canEdit = record.uid === auth.currentUser.uid;
+            const editButtonHtml = canEdit ? `<button onclick="editRecord('${record.id}')" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; margin-top: 5px;">Editar</button>` : '';
+
+            li.innerHTML = `
+                <p><strong>${record.no_servicio}. Horas:</strong> <span class="record-value">${record.horas_servicio}</span></p>
+                <p><strong>Total:</strong> <span class="record-value">$${record.total_servicio.toFixed(2)}</span></p>
+                <p><strong>Lugar:</strong> <span class="record-value">${record.lugar}</span></p>
+                ${record.cancelado ? '<p style="color: red; font-weight: bold; margin-top: 5px;">ESTADO: CANCELADO</p>' : ''}
+                ${editButtonHtml}
+            `;
+            recordList.appendChild(li);
+        });
+        columna.appendChild(recordList);
+        employeeColumnsContainer.appendChild(columna);
+    });
+}
+
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() + 6) % 7);
     var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+}
+
+function getWeekNumberString(d) {
+    const weekNo = getWeekNumber(d);
     return `Semana ${weekNo}`;
 }
 
 async function loadCutSectionData() {
-    // Para el corte, el admin puede ver todos los registros, sin filtro semanal
-    const allRecordsSnapshot = await db.collection('registros').orderBy('fecha', 'desc').get();
-    allRecordsData = [];
-    allRecordsSnapshot.forEach(doc => {
-        allRecordsData.push({ id: doc.id, ...doc.data() });
-    });
     updateCutSelectors();
 }
 
 function updateCutSelectors() {
     const weeks = new Set();
-    const employees = new Set();
+    const employees = new Map();
 
     allRecordsData.forEach(record => {
         if (record.fecha && record.fecha.toDate) {
-            weeks.add(getWeekNumber(record.fecha.toDate()));
+            weeks.add(getWeekNumberString(record.fecha.toDate()));
         }
-        if (record.nombre_empleada_display && record.nombre_empleada_display !== 'Desconocida') {
-            employees.add(record.nombre_empleada_display);
-        }
-        if (record.nombre_registrador && record.nombre_registrador !== 'Desconocida') {
-            employees.add(record.nombre_registrador);
+        if (record.uid_empleada) {
+            employees.set(record.uid_empleada, record.nombre_empleada_display);
         }
     });
 
-    const sortedWeeks = Array.from(weeks).sort((a, b) => {
-        const numA = parseInt(a.replace('Semana ', ''), 10);
-        const numB = parseInt(b.replace('Semana ', ''), 10);
-        return numA - numB;
-    });
-
-    const sortedEmployees = Array.from(employees).sort();
+    const sortedWeeks = Array.from(weeks).sort((a, b) => parseInt(a.replace('Semana ', ''), 10) - parseInt(b.replace('Semana ', ''), 10));
+    const sortedEmployees = Array.from(employees).sort((a, b) => a[1].localeCompare(b[1]));
 
     cutWeekSelect.innerHTML = '<option value="">Selecciona una semana</option>';
-    sortedWeeks.forEach(week => {
-        cutWeekSelect.innerHTML += `<option value="${week}">${week}</option>`;
-    });
+    sortedWeeks.forEach(week => cutWeekSelect.innerHTML += `<option value="${week}">${week}</option>`);
+    if (sortedWeeks.length > 0) cutWeekSelect.value = sortedWeeks[sortedWeeks.length - 1];
 
     cutEmployeeSelect.innerHTML = '<option value="">Selecciona una empleada</option>';
-    sortedEmployees.forEach(employee => {
-        cutEmployeeSelect.innerHTML += `<option value="${employee}">${employee}</option>`;
-    });
+    sortedEmployees.forEach(employee => cutEmployeeSelect.innerHTML += `<option value="${employee[0]}">${employee[1]}</option>`);
 
-    // Seleccionar valores por defecto y generar reporte inicial
+    if (sortedEmployees.length > 0) cutEmployeeSelect.value = sortedEmployees[0][0];
+
     if (sortedWeeks.length > 0 && sortedEmployees.length > 0) {
-        cutWeekSelect.value = sortedWeeks[sortedWeeks.length - 1];
-        cutEmployeeSelect.value = sortedEmployees[0];
         generateCutReport();
     } else {
         cutReportOutput.innerHTML = '<p>No hay suficientes datos para generar un reporte de corte.</p>';
@@ -755,76 +951,75 @@ function updateCutSelectors() {
 generateCutButton.addEventListener('click', generateCutReport);
 
 async function generateCutReport() {
-    const selectedWeek = cutWeekSelect.value;
-    const selectedEmployee = cutEmployeeSelect.value;
+    const selectedWeekString = cutWeekSelect.value;
+    const selectedEmployeeUid = cutEmployeeSelect.value;
+    const selectedEmployeeName = allRecordsData.find(r => r.uid_empleada === selectedEmployeeUid)?.nombre_empleada_display || 'Empleada';
 
-    if (!selectedWeek || !selectedEmployee) {
+    if (!selectedWeekString || !selectedEmployeeUid) {
         cutReportOutput.innerHTML = '<p>Por favor, selecciona una semana y una empleada.</p>';
         return;
     }
 
     const filteredRecords = allRecordsData.filter(record => {
-        const recordWeek = record.fecha && record.fecha.toDate ? getWeekNumber(record.fecha.toDate()) : null;
-        return recordWeek === selectedWeek &&
-            (record.nombre_empleada_display === selectedEmployee || record.nombre_registrador === selectedEmployee);
+        const recordWeekString = record.fecha && record.fecha.toDate ? getWeekNumberString(record.fecha.toDate()) : null;
+        return recordWeekString === selectedWeekString && record.uid_empleada === selectedEmployeeUid;
     });
 
     if (filteredRecords.length === 0) {
-        cutReportOutput.innerHTML = `<p>No se encontraron transacciones para "${selectedEmployee}" en "${selectedWeek}".</p>`;
+        cutReportOutput.innerHTML = `<p>No se encontraron transacciones para "${selectedEmployeeName}" en "${selectedWeekString}".</p>`;
         return;
     }
 
-    let oficinaTotals = {
-        servicios: 0, tarjetas: 0, uber: 0, extras: 0, efectivo: 0, pagosPorTipo: {}
-    };
-
-    let empleadaTotals = {
-        servicios: 0, tarjetas: 0, uber: 0, extras: 0, efectivo: 0, pagosPorTipo: {}
-    };
-
+    let oficinaTotals = { servicios: 0, tarjetas: 0, uber: 0, extras: 0, efectivo: 0 };
+    let empleadaTotals = { servicios: 0, tarjetas: 0, uber: 0, extras: 0, efectivo: 0 };
     const transactionsForComparison = [];
 
+    const groupedTransactions = {};
     filteredRecords.forEach(record => {
-        if (record.cancelado) return; // Ignorar registros cancelados para el corte
-
-        const total = record.total_servicio || 0;
-        const montoTarjetas = record.monto_tarjeta || 0;
-        const uber = (record.uber_ida || 0) + (record.uber_regreso || 0);
-        const efectivo = record.monto_efectivo || 0;
-        const banco = record.banco || 'N/A';
-
-        let extrasOriginal = record.extra || 0;
-        let extrasAjustados = extrasOriginal;
-        if (extrasOriginal >= 1000) {
-            extrasAjustados = extrasOriginal * 0.85;
+        if (!groupedTransactions[record.no_servicio]) {
+            groupedTransactions[record.no_servicio] = { oficina: null, empleada: null };
         }
-
         if (record.rol_registrador === 'admin' || record.rol_registrador === 'jefe') {
-            oficinaTotals.servicios += total;
-            oficinaTotals.tarjetas += montoTarjetas;
-            oficinaTotals.uber += uber;
+            groupedTransactions[record.no_servicio].oficina = record;
+        } else if (record.rol_registrador === 'empleada') {
+            groupedTransactions[record.no_servicio].empleada = record;
+        }
+    });
+
+    Object.values(groupedTransactions).forEach(serviceGroup => {
+        const oficinaRecord = serviceGroup.oficina;
+        const empleadaRecord = serviceGroup.empleada;
+
+        if (oficinaRecord && !oficinaRecord.cancelado) {
+            oficinaTotals.servicios += oficinaRecord.total_servicio || 0;
+            oficinaTotals.tarjetas += oficinaRecord.monto_tarjeta || 0;
+            oficinaTotals.uber += (oficinaRecord.uber_ida || 0) + (oficinaRecord.uber_regreso || 0);
+            let extrasAjustados = oficinaRecord.extra || 0;
+            if (extrasAjustados >= 1000) {
+                extrasAjustados = extrasAjustados * 0.85;
+            }
             oficinaTotals.extras += extrasAjustados;
-            oficinaTotals.efectivo += efectivo;
-            oficinaTotals.pagosPorTipo[banco] = (oficinaTotals.pagosPorTipo[banco] || 0) + total;
+            oficinaTotals.efectivo += oficinaRecord.monto_efectivo || 0;
         }
 
-        if (record.nombre_empleada_display === selectedEmployee) {
-            empleadaTotals.servicios += total;
-            empleadaTotals.tarjetas += montoTarjetas;
-            empleadaTotals.uber += uber;
+        if (empleadaRecord && !empleadaRecord.cancelado) {
+            empleadaTotals.servicios += empleadaRecord.total_servicio || 0;
+            empleadaTotals.tarjetas += empleadaRecord.monto_tarjeta || 0;
+            empleadaTotals.uber += (empleadaRecord.uber_ida || 0) + (empleadaRecord.uber_regreso || 0);
+            let extrasAjustados = empleadaRecord.extra || 0;
+            if (extrasAjustados >= 1000) {
+                extrasAjustados = extrasAjustados * 0.85;
+            }
             empleadaTotals.extras += extrasAjustados;
-            empleadaTotals.efectivo += efectivo;
-            empleadaTotals.pagosPorTipo[banco] = (empleadaTotals.pagosPorTipo[banco] || 0) + total;
+            empleadaTotals.efectivo += empleadaRecord.monto_efectivo || 0;
         }
 
-        transactionsForComparison.push(record);
+        if (oficinaRecord || empleadaRecord) {
+            transactionsForComparison.push(serviceGroup);
+        }
     });
 
     let outputHtml = '';
-
-    // Aquí iría el resto de la lógica de renderizado del reporte de corte
-    // ... para mantener este ejemplo conciso y centrado en la nueva funcionalidad.
-    // Usaremos el mismo HTML de renderizado del reporte que ya tenías
     outputHtml += `
         <div class="cut-report-summary">
             <h3>Corte Comparativo (Oficina vs Empleada)</h3>
@@ -867,100 +1062,94 @@ async function generateCutReport() {
     const calcSinDeudaOficina = (oficinaTotals.servicios * 0.40) - oficinaTotals.tarjetas - oficinaTotals.uber - oficinaTotals.extras;
     const calcSinDeudaEmpleada = (empleadaTotals.servicios * 0.40) - empleadaTotals.tarjetas - empleadaTotals.uber - empleadaTotals.extras;
     const diffCorteSinDeuda = calcSinDeudaEmpleada - calcSinDeudaOficina;
-
-    let oficinaFinalText = '';
-    let empleadaFinalText = '';
-    let oficinaFinalClass = '';
-    let empleadaFinalClass = '';
-
-    if (calcSinDeudaOficina < 0) {
-        oficinaFinalText = `La empresa regresa: $${Math.abs(calcSinDeudaOficina).toFixed(2)}`;
-        oficinaFinalClass = 'negative';
-    } else {
-        oficinaFinalText = `Empleada regresa: $${calcSinDeudaOficina.toFixed(2)}`;
-        oficinaFinalClass = 'positive';
-    }
-
-    if (calcSinDeudaEmpleada < 0) {
-        empleadaFinalText = `La empresa regresa: $${Math.abs(calcSinDeudaEmpleada).toFixed(2)}`;
-        empleadaFinalClass = 'negative';
-    } else {
-        empleadaFinalText = `Empleada regresa: $${calcSinDeudaEmpleada.toFixed(2)}`;
-        empleadaFinalClass = 'positive';
-    }
+    let oficinaFinalText = calcSinDeudaOficina < 0 ? `La empresa regresa: $${Math.abs(calcSinDeudaOficina).toFixed(2)}` : `Empleada regresa: $${calcSinDeudaOficina.toFixed(2)}`;
+    let empleadaFinalText = calcSinDeudaEmpleada < 0 ? `La empresa regresa: $${Math.abs(calcSinDeudaEmpleada).toFixed(2)}` : `Empleada regresa: $${calcSinDeudaEmpleada.toFixed(2)}`;
+    let oficinaFinalClass = calcSinDeudaOficina < 0 ? 'negative' : '';
+    let empleadaFinalClass = calcSinDeudaEmpleada < 0 ? 'negative' : '';
 
     outputHtml += `
         <div class="cut-report-summary">
             <h3>Corte Final (Efectivo a entregar - Sin Deuda)</h3>
             <p><strong>Oficina:</strong> <span class="final-cut ${oficinaFinalClass}">${oficinaFinalText}</span></p>
             <p><strong>Empleada:</strong> <span class="final-cut ${empleadaFinalClass}">${empleadaFinalText}</span></p>
-            <p><strong>Diferencia (Empleada - Oficina):</strong> <span class="final-cut ${diffCorteSinDeuda >= 0 ? 'positive' : 'negative'}">$${diffCorteSinDeuda.toFixed(2)}</span></p>
+            <p><strong>Diferencia (Empleada - Oficina):</strong> <span class="final-cut ${diffCorteSinDeuda >= 0 ? 'positive-diff' : 'negative-diff'}">$${diffCorteSinDeuda.toFixed(2)}</span></p>
         </div>
     `;
 
+    transactionsForComparison.sort((a, b) => (a.oficina?.no_servicio || a.empleada?.no_servicio) - (b.oficina?.no_servicio || b.empleada?.no_servicio));
+
     outputHtml += `
-        <h3>Comparativa de Transacciones para ${selectedEmployee} (${selectedWeek})</h3>
+        <h3>Comparativa de Transacciones para ${selectedEmployeeName} (${selectedWeekString})</h3>
         <div class="cut-transactions-container">
             <table class="cut-transactions-table">
                 <thead>
                     <tr>
-                        <th>No.</th>
+                        <th>No. Servicio</th>
                         <th>Fecha</th>
-                        <th>Horas (Oficina)</th><th>Horas (Empleada)</th>
-                        <th>Total (Oficina)</th><th>Total (Empleada)</th>
-                        <th>Efectivo (Oficina)</th><th>Efectivo (Empleada)</th>
-                        <th>Tarjeta (Oficina)</th><th>Tarjeta (Empleada)</th>
-                        <th>Extras (Oficina)</th><th>Extras (Empleada)</th>
-                        <th>Lugar (Oficina)</th><th>Lugar (Empleada)</th>
-                        <th>Uber (Oficina)</th><th>Uber (Empleada)</th>
-                        <th>Banco (Oficina)</th><th>Banco (Empleada)</th>
+                        <th>Horas (Oficina)</th>
+                        <th>Horas (Empleada)</th>
+                        <th>Total (Oficina)</th>
+                        <th>Total (Empleada)</th>
+                        <th>Efectivo (Oficina)</th>
+                        <th>Efectivo (Empleada)</th>
+                        <th>Tarjeta (Oficina)</th>
+                        <th>Tarjeta (Empleada)</th>
+                        <th>Extra (Oficina)</th>
+                        <th>Extra (Empleada)</th>
+                        <th>Lugar (Oficina)</th>
+                        <th>Lugar (Empleada)</th>
+                        <th>Uber (Oficina)</th>
+                        <th>Uber (Empleada)</th>
+                        <th>Chofer Ida (Oficina)</th>
+                        <th>Chofer Ida (Empleada)</th>
+                        <th>Chofer Regreso (Oficina)</th>
+                        <th>Chofer Regreso (Empleada)</th>
+                        <th>Cancelado (Oficina)</th>
+                        <th>Cancelado (Empleada)</th>
                     </tr>
                 </thead>
                 <tbody>
     `;
 
-    transactionsForComparison.sort((a, b) => a.fecha.toDate().getTime() - b.fecha.toDate().getTime());
+    transactionsForComparison.forEach(serviceGroup => {
+        const oficina = serviceGroup.oficina;
+        const empleada = serviceGroup.empleada;
 
-    transactionsForComparison.forEach((record, index) => {
-        const fecha = record.fecha ? record.fecha.toDate().toLocaleDateString() : 'N/A';
-        const horas = record.horas_servicio?.toFixed(2) || '0.00';
-        const total = record.total_servicio?.toFixed(2) || '0.00';
-        const efectivo = record.monto_efectivo?.toFixed(2) || '0.00';
-        const tarjeta = record.monto_tarjeta?.toFixed(2) || '0.00';
-        const extras = record.extra?.toFixed(2) || '0.00';
-        const lugar = record.lugar || 'N/A';
-        const uber = ((record.uber_ida || 0) + (record.uber_regreso || 0))?.toFixed(2) || '0.00';
-        const banco = record.banco || 'N/A';
-
-        const isOfficeRecord = (record.rol_registrador === 'admin' || record.rol_registrador === 'jefe');
-        const isEmployeeRecord = (record.nombre_empleada_display === selectedEmployee);
+        const date = (oficina?.fecha || empleada?.fecha)?.toDate().toLocaleDateString() || 'N/A';
+        const noServicio = oficina?.no_servicio || empleada?.no_servicio || '';
 
         outputHtml += `
             <tr>
-                <td>${index + 1}</td>
-                <td>${fecha}</td>
-                <td class="office-col">${isOfficeRecord ? horas : ''}</td><td class="employee-col">${isEmployeeRecord ? horas : ''}</td>
-                <td class="office-col">$${isOfficeRecord ? total : ''}</td><td class="employee-col">$${isEmployeeRecord ? total : ''}</td>
-                <td class="office-col">$${isOfficeRecord ? efectivo : ''}</td><td class="employee-col">$${isEmployeeRecord ? efectivo : ''}</td>
-                <td class="office-col">$${isOfficeRecord ? tarjeta : ''}</td><td class="employee-col">$${isEmployeeRecord ? tarjeta : ''}</td>
-                <td class="office-col">$${isOfficeRecord ? extras : ''}</td><td class="employee-col">$${isEmployeeRecord ? extras : ''}</td>
-                <td class="office-col">${isOfficeRecord ? lugar : ''}</td><td class="employee-col">${isEmployeeRecord ? lugar : ''}</td>
-                <td class="office-col">$${isOfficeRecord ? uber : ''}</td><td class="employee-col">$${isEmployeeRecord ? uber : ''}</td>
-                <td class="office-col">${isOfficeRecord ? banco : ''}</td><td class="employee-col">${isEmployeeRecord ? banco : ''}</td>
+                <td>${noServicio}</td>
+                <td>${date}</td>
+                <td>${oficina?.horas_servicio?.toFixed(2) || ''}</td>
+                <td>${empleada?.horas_servicio?.toFixed(2) || ''}</td>
+                <td>$${oficina?.total_servicio?.toFixed(2) || ''}</td>
+                <td>$${empleada?.total_servicio?.toFixed(2) || ''}</td>
+                <td>$${oficina?.monto_efectivo?.toFixed(2) || ''}</td>
+                <td>$${empleada?.monto_efectivo?.toFixed(2) || ''}</td>
+                <td>$${oficina?.monto_tarjeta?.toFixed(2) || ''}</td>
+                <td>$${empleada?.monto_tarjeta?.toFixed(2) || ''}</td>
+                <td>$${oficina?.extra?.toFixed(2) || ''}</td>
+                <td>$${empleada?.extra?.toFixed(2) || ''}</td>
+                <td>${oficina?.lugar || ''}</td>
+                <td>${empleada?.lugar || ''}</td>
+                <td>$${((oficina?.uber_ida || 0) + (oficina?.uber_regreso || 0))?.toFixed(2) || ''}</td>
+                <td>$${((empleada?.uber_ida || 0) + (empleada?.uber_regreso || 0))?.toFixed(2) || ''}</td>
+                <td>${oficina?.chofer_ida || ''}</td>
+                <td>${empleada?.chofer_ida || ''}</td>
+                <td>${oficina?.chofer_regreso || ''}</td>
+                <td>${empleada?.chofer_regreso || ''}</td>
+                <td>${oficina?.cancelado ? 'Sí' : 'No'}</td>
+                <td>${empleada?.cancelado ? 'Sí' : 'No'}</td>
             </tr>
         `;
     });
 
-    outputHtml += `
-                </tbody>
-            </table>
-        </div>
-    `;
-
+    outputHtml += `</tbody></table></div>`;
     cutReportOutput.innerHTML = outputHtml;
 }
 
-// --- Función para la edición de registros (admin) ---
 async function editRecord(recordId) {
     const recordToEdit = allRecordsData.find(record => record.id === recordId);
     if (!recordToEdit) {
@@ -976,47 +1165,64 @@ async function editRecord(recordId) {
     editExtraInput.value = recordToEdit.extra;
     editUberIdaInput.value = recordToEdit.uber_ida;
     editUberRegresoInput.value = recordToEdit.uber_regreso;
-    editCanceladoToggle.checked = recordToEdit.cancelado;
+    editCanceladoCheckbox.checked = recordToEdit.cancelado;
+
+    // Asignar el número de servicio al display
+    document.getElementById('edit-no-servicio-display').textContent = recordToEdit.no_servicio || 'N/A';
+
+    document.getElementById(`edit-pago-${recordToEdit.metodo_pago}`).checked = true;
+    handleEditPaymentMethodChange();
 
     await cargarOpcionesModalEdicion(recordToEdit);
     editRecordModal.style.display = 'flex';
     editFeedbackMessage.style.display = 'none';
 }
 
+function handleEditPaymentMethodChange() {
+    const metodoPago = document.querySelector('input[name="edit_metodo_pago"]:checked').value;
+    const extraValue = parseFloat(document.getElementById('edit-extra').value) || 0;
+
+    editMontoEfectivoField.style.display = (metodoPago === 'mixto') ? 'block' : 'none';
+    editMontoTarjetaField.style.display = (metodoPago === 'mixto') ? 'block' : 'none';
+    editBancoField.style.display = (metodoPago === 'tarjeta' || metodoPago === 'mixto' || extraValue > 0) ? 'block' : 'none';
+}
+
+editExtraInput.addEventListener('input', handleEditPaymentMethodChange);
+editPagoRadios.forEach(radio => radio.addEventListener('change', handleEditPaymentMethodChange));
+
 async function cargarOpcionesModalEdicion(record) {
+    const [empleadasSnapshot, bancosSnapshot, lugaresSnapshot, choferesSnapshot] = await Promise.all([
+        db.collection('usuarios').where('rol', '==', 'empleada').orderBy('nombre').get(),
+        db.collection('bancos').orderBy('nombre').get(),
+        db.collection('lugares').orderBy('nombre').get(),
+        db.collection('choferes').orderBy('nombre').get()
+    ]);
+
     editEmpleadaSelect.innerHTML = '<option value="">Selecciona una empleada</option>';
-    const empleadasSnapshot = await db.collection('usuarios').where('rol', '==', 'empleada').orderBy('nombre').get();
     empleadasSnapshot.forEach(doc => {
         const selected = (doc.id === record.uid_empleada) ? 'selected' : '';
         editEmpleadaSelect.innerHTML += `<option value="${doc.id}" ${selected}>${doc.data().nombre || doc.data().email}</option>`;
     });
 
     editBancoSelect.innerHTML = '<option value="">Selecciona un banco</option>';
-    const bancosSnapshot = await db.collection('bancos').orderBy('nombre').get();
     bancosSnapshot.forEach(doc => {
         const selected = (doc.data().nombre === record.banco) ? 'selected' : '';
         editBancoSelect.innerHTML += `<option value="${doc.data().nombre}" ${selected}>${doc.data().nombre}</option>`;
     });
 
     editLugarSelect.innerHTML = '<option value="">Selecciona un lugar</option>';
-    const lugaresSnapshot = await db.collection('lugares').orderBy('nombre').get();
     lugaresSnapshot.forEach(doc => {
         const selected = (doc.data().nombre === record.lugar) ? 'selected' : '';
         editLugarSelect.innerHTML += `<option value="${doc.data().nombre}" ${selected}>${doc.data().nombre}</option>`;
     });
 
     editChoferIdaSelect.innerHTML = '<option value="">Selecciona un chofer</option>';
-    const choferesSnapshotIda = await db.collection('choferes').orderBy('nombre').get();
-    choferesSnapshotIda.forEach(doc => {
-        const selected = (doc.data().nombre === record.chofer_ida) ? 'selected' : '';
-        editChoferIdaSelect.innerHTML += `<option value="${doc.data().nombre}" ${selected}>${doc.data().nombre}</option>`;
-    });
-
     editChoferRegresoSelect.innerHTML = '<option value="">Selecciona un chofer</option>';
-    const choferesSnapshotRegreso = await db.collection('choferes').orderBy('nombre').get();
-    choferesSnapshotRegreso.forEach(doc => {
-        const selected = (doc.data().nombre === record.chofer_regreso) ? 'selected' : '';
-        editChoferRegresoSelect.innerHTML += `<option value="${doc.data().nombre}" ${selected}>${doc.data().nombre}</option>`;
+    choferesSnapshot.forEach(doc => {
+        const selectedIda = (doc.data().nombre === record.chofer_ida) ? 'selected' : '';
+        const selectedRegreso = (doc.data().nombre === record.chofer_regreso) ? 'selected' : '';
+        editChoferIdaSelect.innerHTML += `<option value="${doc.data().nombre}" ${selectedIda}>${doc.data().nombre}</option>`;
+        editChoferRegresoSelect.innerHTML += `<option value="${doc.data().nombre}" ${selectedRegreso}>${doc.data().nombre}</option>`;
     });
 }
 
@@ -1031,50 +1237,57 @@ editRecordForm.addEventListener('submit', async (e) => {
     const recordId = editRecordIdInput.value;
     const user = auth.currentUser;
 
+    const metodoPago = document.querySelector('input[name="edit_metodo_pago"]:checked').value;
+    let montoEfectivo = (metodoPago === 'mixto' || metodoPago === 'efectivo') ? parseFloat(editMontoEfectivoInput.value) || 0 : 0;
+    let montoTarjeta = (metodoPago === 'mixto') ? parseFloat(editMontoTarjetaInput.value) || 0 : 0;
+    const totalServicio = parseFloat(editTotalServicioInput.value) || 0;
+
+    if (metodoPago === 'tarjeta') {
+        montoTarjeta = totalServicio;
+        montoEfectivo = 0;
+    }
+
+    const banco = (metodoPago !== 'efectivo' || parseFloat(editExtraInput.value) > 0) ? editBancoSelect.value : '';
+
     const updatedData = {
         horas_servicio: parseFloat(editHorasServicioInput.value) || 0,
-        total_servicio: parseFloat(editTotalServicioInput.value) || 0,
-        monto_efectivo: parseFloat(editMontoEfectivoInput.value) || 0,
-        monto_tarjeta: parseFloat(editMontoTarjetaInput.value) || 0,
-        banco: editBancoSelect.value,
+        total_servicio: totalServicio,
+        metodo_pago: metodoPago,
+        monto_efectivo: montoEfectivo,
+        monto_tarjeta: montoTarjeta,
+        banco: banco,
         extra: parseFloat(editExtraInput.value) || 0,
         lugar: editLugarSelect.value,
         uber_ida: parseFloat(editUberIdaInput.value) || 0,
         chofer_ida: editChoferIdaSelect.value,
         uber_regreso: parseFloat(editUberRegresoInput.value) || 0,
         chofer_regreso: editChoferRegresoSelect.value,
+        cancelado: editCanceladoCheckbox.checked,
         uid_empleada: editEmpleadaSelect.value,
-        cancelado: editCanceladoToggle.checked,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedBy: user.email
     };
 
-    try {
-        const newEmpleadaUid = editEmpleadaSelect.value;
-        const currentRecord = allRecordsData.find(r => r.id === recordId);
-
-        if (newEmpleadaUid && newEmpleadaUid !== currentRecord.uid_empleada) {
-            const newEmpleadaDoc = await db.collection('usuarios').doc(newEmpleadaUid).get();
-            if (newEmpleadaDoc.exists) {
-                const newEmpleadaData = newEmpleadaDoc.data();
-                updatedData.email_empleada = newEmpleadaData.email;
-                updatedData.nombre_empleada = newEmpleadaData.nombre || newEmpleadaData.email.split('@')[0];
-            } else {
-                mostrarMensajeModal('error', 'La nueva empleada seleccionada no es válida.');
-                return;
-            }
-        } else if (!newEmpleadaUid) {
-            updatedData.uid_empleada = '';
-            updatedData.email_empleada = '';
-            updatedData.nombre_empleada = '';
+    const newEmpleadaUid = editEmpleadaSelect.value;
+    const currentRecord = allRecordsData.find(r => r.id === recordId);
+    if (newEmpleadaUid && newEmpleadaUid !== currentRecord.uid_empleada) {
+        const newEmpleadaDoc = await db.collection('usuarios').doc(newEmpleadaUid).get();
+        if (newEmpleadaDoc.exists) {
+            const newEmpleadaData = newEmpleadaDoc.data();
+            updatedData.email_empleada = newEmpleadaData.email;
+            updatedData.nombre_empleada = newEmpleadaData.nombre || newEmpleadaData.email.split('@')[0];
+        } else {
+            mostrarMensajeModal('error', 'La nueva empleada seleccionada no es válida.');
+            return;
         }
+    }
 
+    try {
         await db.collection('registros').doc(recordId).update(updatedData);
         mostrarMensajeModal('success', 'Registro actualizado con éxito!');
         setTimeout(() => {
             closeEditRecordModal();
         }, 1000);
-
     } catch (error) {
         console.error("Error al actualizar registro:", error);
         mostrarMensajeModal('error', 'Error al actualizar registro. Inténtalo de nuevo.');
@@ -1089,4 +1302,16 @@ function mostrarMensajeModal(tipo, mensaje) {
     setTimeout(() => {
         editFeedbackMessage.style.display = 'none';
     }, 4000);
+}
+
+
+function parseMonetaryValue(value) {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (typeof value === 'string') {
+        const parsed = parseFloat(value.replace(/[^0-9.-]+/g, ""));
+        return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
 }
