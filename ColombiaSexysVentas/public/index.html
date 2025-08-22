@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ventas - Colombia Sexys</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Chart.js para el Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Enlace a la hoja de estilos externa -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Estilos para la pantalla de carga */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1c1c1e; /* Color de fondo oscuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-logo {
+            width: 150px; /* Ajusta el tamaño del logo como prefieras */
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Pantalla de Carga con Logo Animado -->
+<div id="loading-container" class="loading-overlay">
+    <img src="images/logo.png" alt="Cargando..." class="loading-logo">
+</div>
+
+<div class="container">
+
+    <!-- Contenedor de Autenticación (inicialmente oculto) -->
+    <div id="auth-container" style="display: none;">
+        <img src="images/logo.png" alt="Logo Colombia Sexys" class="logo">
+        <h1>Registro de Ventas</h1>
+        <p>Por favor, inicia sesión para continuar.</p>
+        <button id="login-button">
+            <img width="20px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/512px-Google_%22G%22_logo.svg.png" />
+            Iniciar sesión con Google
+        </button>
+    </div>
+
+    <!-- Contenedor Principal de la App (inicialmente oculto) -->
+    <div id="main-container" style="display: none;">
+        <div class="user-info">
+            <img src="images/logo.png" alt="Logo Colombia Sexys" class="logo">
+            <h1>Registro de Ventas</h1>
+            <p id="user-name-display" class="user-name"></p>
+            <p id="user-role-display" class="user-role"></p>
+            <button id="logout-button" class="logout-btn">Cerrar Sesión</button>
+        </div>
+
+        <!-- Contenido para Jefes y Empleadas -->
+        <div id="non-admin-content">
+            <form id="service-form">
+                <h2>Formulario de Registro</h2>
+                <div id="empleada-field" style="display:none;">
+                    <label>Trabajadora a cargo:</label>
+                    <div id="empleada-buttons-container" class="empleada-buttons"></div>
+                    <input type="hidden" id="empleada-uid-selected" name="empleada_uid">
+                </div>
+
+                <label for="horas_servicio">Horas de Servicio:</label>
+                <input type="number" id="horas_servicio" name="horas_servicio" step="1" min="0">
+                <label for="total_servicio">Total del Servicio:</label>
+                <input type="number" id="total_servicio" name="total_servicio" step="0.01">
+                <label>Método de Pago:</label>
+                <div class="payment-methods-row">
+                    <div><input type="radio" id="pago-efectivo" name="metodo_pago" value="efectivo" checked><label for="pago-efectivo">Efectivo</label></div>
+                    <div><input type="radio" id="pago-tarjeta" name="metodo_pago" value="tarjeta"><label for="pago-tarjeta">Tarjeta</label></div>
+                    <div><input type="radio" id="pago-mixto" name="metodo_pago" value="mixto"><label for="pago-mixto">Mixto</label></div>
+                    <div><input type="radio" id="pago-membresia" name="metodo_pago" value="membresia"><label for="pago-membresia">Membresía</label></div>
+                </div>
+                <div id="membresia-field" style="display:none;"><label for="membresia_id">Seleccionar Membresía:</label><select id="membresia_id" name="membresia_id"><option value="">Selecciona una membresía</option></select></div>
+                <div id="monto-efectivo-field" style="display:none;"><label for="monto_efectivo">Monto en Efectivo:</label><input type="number" id="monto_efectivo" name="monto_efectivo" step="0.01"></div>
+
+                <div id="tarjeta-1-fields" style="display:none;">
+                    <div id="monto-tarjeta-field"><label for="monto_tarjeta">Monto Tarjeta 1:</label><input type="number" id="monto_tarjeta" name="monto_tarjeta" step="0.01"></div>
+                    <div id="banco-field"><label for="banco">Banco Tarjeta 1:</label><select id="banco" name="banco"><option value="">Selecciona un banco</option></select></div>
+                </div>
+                <div id="tarjeta-2-fields" style="display:none;">
+                    <div id="monto-tarjeta-2-field"><label for="monto_tarjeta_2">Monto Tarjeta 2:</label><input type="number" id="monto_tarjeta_2" name="monto_tarjeta_2" step="0.01"></div>
+                    <div id="banco-2-field"><label for="banco_2">Banco Tarjeta 2:</label><select id="banco_2" name="banco_2"><option value="">Selecciona un banco</option></select></div>
+                    <button type="button" class="remove-card-btn" data-prefix="">Quitar Tarjeta</button>
+                </div>
+                <button type="button" id="add-card-btn" class="add-card-btn" style="display:none;">Añadir otra tarjeta</button>
+
+                <label for="extra">Extra:</label>
+                <input type="number" id="extra" name="extra" step="0.01">
+                <label for="lugar">Lugar:</label>
+                <select id="lugar" name="lugar"><option value="">Selecciona un lugar</option></select>
+                <div class="dynamic-form-section"><div><label for="uber_ida">Uber Ida:</label><input type="number" id="uber_ida" name="uber_ida" step="0.01"></div><div><label for="chofer_ida">Chofer Ida:</label><select id="chofer_ida" name="chofer_ida"><option value="">Selecciona un chofer</option></select></div></div>
+                <div class="dynamic-form-section"><div><label for="uber_regreso">Uber Regreso:</label><input type="number" id="uber_regreso" name="uber_regreso" step="0.01"></div><div><label for="chofer_regreso">Chofer Regreso:</label><select id="chofer_regreso" name="chofer_regreso"><option value="">Selecciona un chofer</option></select></div></div>
+
+                <div class="checkbox-group">
+                    <div><input type="checkbox" id="cancelado" name="cancelado"><label for="cancelado">Servicio Cancelado</label></div>
+                    <div><input type="checkbox" id="promocion" name="promocion"><label for="promocion">Promoción</label></div>
+                </div>
+
+                <button type="submit" class="submit-btn">Registrar Servicio</button>
+            </form>
+            <div id="feedback-message"></div>
+            <div id="records-section">
+                <h2 id="records-section-title">Registros</h2>
+                <div id="office-records-view" style="display: none;"><div class="employee-columns"></div></div>
+                <ul id="records-list"></ul>
+            </div>
+        </div>
+
+        <!-- INTERFAZ PARA ADMINISTRADORES -->
+        <div id="admin-interface" style="display: none;">
+            <nav id="admin-nav">
+                <ul>
+                    <li><button data-page="dashboard" class="admin-nav-btn active">Dashboard</button></li>
+                    <li><button data-page="registros" class="admin-nav-btn">Gestión de Registros</button></li>
+                    <li><button data-page="corte" class="admin-nav-btn">Corte Semanal</button></li>
+                    <li><button data-page="ajustes" class="admin-nav-btn">Ajustes del Sistema</button></li>
+                </ul>
+            </nav>
+            <main id="admin-main-content">
+                <div id="admin-page-dashboard" class="admin-page">
+                    <h2>Dashboard y Analíticas</h2>
+                    <div id="dashboard-date-controls" class="week-selector" style="justify-content: flex-start; margin-bottom: 20px;">
+                        <label for="dashboard-filter-type" style="margin: 0 10px 0 0;">Ver por:</label>
+                        <select id="dashboard-filter-type" style="width: auto; margin-right: 20px;">
+                            <option value="week">Semana</option>
+                            <option value="month">Mes</option>
+                            <option value="all">Histórico</option>
+                        </select>
+                        <div id="dashboard-nav-container" style="display: flex; align-items: center; gap: 15px;">
+                            <button id="dashboard-prev-btn">&lt; Anterior</button>
+                            <span id="dashboard-date-display" style="font-weight: 600;"></span>
+                            <button id="dashboard-next-btn">Siguiente &gt;</button>
+                        </div>
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="kpi-card-grid">
+                            <div id="kpi-ingresos-totales" class="kpi-card"></div>
+                            <div id="kpi-ingresos-bancos" class="kpi-card"></div>
+                            <div id="kpi-gastos-totales" class="kpi-card"></div>
+                        </div>
+                        <div class="chart-container"><h3>Ranking de Empleadas por Ingresos</h3><canvas id="ranking-chart"></canvas></div>
+                        <div class="table-container"><h3>Tabla de Analíticas por Empleada</h3><div id="analiticas-table-container"></div></div>
+                    </div>
+                </div>
+
+                <div id="admin-page-registros" class="admin-page hidden">
+                    <h2>Gestión de Registros</h2>
+                    <form id="admin-service-form">
+                        <h3>Crear Nuevo Registro</h3>
+
+                        <label>Registrar como:</label>
+                        <div class="payment-methods-row">
+                            <div><input type="radio" id="admin-register-as-jefe" name="register_as" value="jefe" checked><label for="admin-register-as-jefe">Jefe</label></div>
+                            <div><input type="radio" id="admin-register-as-empleada" name="register_as" value="empleada"><label for="admin-register-as-empleada">Empleada</label></div>
+                        </div>
+
+                        <label for="admin-fecha_servicio">Fecha del Servicio:</label>
+                        <input type="date" id="admin-fecha_servicio" name="fecha_servicio">
+
+                        <div id="admin-jefe-selectors">
+                            <label for="admin-jefe-select">Jefe que registra:</label>
+                            <select id="admin-jefe-select" name="jefe_uid"></select>
+                            <label for="admin-empleada-of-jefe-select">Trabajadora a cargo:</label>
+                            <select id="admin-empleada-of-jefe-select" name="empleada_uid_from_jefe"></select>
+                        </div>
+                        <div id="admin-empleada-selector" style="display: none;">
+                            <label for="admin-empleada-select">Empleada que registra:</label>
+                            <select id="admin-empleada-select" name="empleada_uid_single"></select>
+                        </div>
+
+                        <label for="admin-horas_servicio">Horas de Servicio:</label>
+                        <input type="number" id="admin-horas_servicio" name="horas_servicio" step="1" min="0">
+                        <label for="admin-total_servicio">Total del Servicio:</label>
+                        <input type="number" id="admin-total_servicio" name="total_servicio" step="0.01">
+                        <label>Método de Pago:</label>
+                        <div class="payment-methods-row">
+                            <div><input type="radio" id="admin-pago-efectivo" name="admin_metodo_pago" value="efectivo" checked><label for="admin-pago-efectivo">Efectivo</label></div>
+                            <div><input type="radio" id="admin-pago-tarjeta" name="admin_metodo_pago" value="tarjeta"><label for="admin-pago-tarjeta">Tarjeta</label></div>
+                            <div><input type="radio" id="admin-pago-mixto" name="admin_metodo_pago" value="mixto"><label for="admin-pago-mixto">Mixto</label></div>
+                            <div><input type="radio" id="admin-pago-membresia" name="admin_metodo_pago" value="membresia"><label for="admin-pago-membresia">Membresía</label></div>
+                        </div>
+                        <div id="admin-membresia-field" style="display:none;"><label for="admin-membresia_id">Seleccionar Membresía:</label><select id="admin-membresia_id" name="membresia_id"></select></div>
+                        <div id="admin-monto-efectivo-field" style="display:none;"><label for="admin-monto_efectivo">Monto en Efectivo:</label><input type="number" id="admin-monto_efectivo" name="monto_efectivo" step="0.01"></div>
+
+                        <div id="admin-tarjeta-1-fields" style="display:none;">
+                            <div id="admin-monto-tarjeta-field"><label for="admin-monto_tarjeta">Monto Tarjeta 1:</label><input type="number" id="admin-monto_tarjeta" name="monto_tarjeta" step="0.01"></div>
+                            <div id="admin-banco-field"><label for="admin-banco">Banco Tarjeta 1:</label><select id="admin-banco" name="banco"></select></div>
+                        </div>
+                        <div id="admin-tarjeta-2-fields" style="display:none;">
+                            <div id="admin-monto-tarjeta-2-field"><label for="admin-monto_tarjeta_2">Monto Tarjeta 2:</label><input type="number" id="admin-monto_tarjeta_2" name="monto_tarjeta_2" step="0.01"></div>
+                            <div id="admin-banco-2-field"><label for="admin-banco_2">Banco Tarjeta 2:</label><select id="admin-banco_2" name="banco_2"></select></div>
+                            <button type="button" class="remove-card-btn" data-prefix="admin-">Quitar Tarjeta</button>
+                        </div>
+                        <button type="button" id="admin-add-card-btn" class="add-card-btn" style="display:none;">Añadir otra tarjeta</button>
+
+                        <label for="admin-extra">Extra:</label>
+                        <input type="number" id="admin-extra" name="extra" step="0.01">
+                        <label for="admin-lugar">Lugar:</label>
+                        <select id="admin-lugar" name="lugar"></select>
+                        <div class="dynamic-form-section"><div><label for="admin-uber_ida">Uber Ida:</label><input type="number" id="admin-uber_ida" name="uber_ida" step="0.01"></div><div><label for="admin-chofer_ida">Chofer Ida:</label><select id="admin-chofer_ida" name="chofer_ida"></select></div></div>
+                        <div class="dynamic-form-section"><div><label for="admin-uber_regreso">Uber Regreso:</label><input type="number" id="admin-uber_regreso" name="uber_regreso" step="0.01"></div><div><label for="admin-chofer_regreso">Chofer Regreso:</label><select id="admin-chofer_regreso" name="chofer_regreso"></select></div></div>
+
+                        <div class="checkbox-group">
+                            <div><input type="checkbox" id="admin-cancelado" name="cancelado"><label for="admin-cancelado">Servicio Cancelado</label></div>
+                            <div><input type="checkbox" id="admin-promocion" name="promocion"><label for="admin-promocion">Promoción</label></div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Registrar Servicio</button>
+                    </form>
+                    <div id="admin-feedback-message"></div>
+                    <div id="admin-records-section">
+                        <h3>Visualización de Registros Semanales</h3>
+                        <div id="admin-week-selector" class="week-selector">
+                            <button id="admin-prev-week-btn">&lt; Anterior</button>
+                            <span id="admin-current-week-display"></span>
+                            <button id="admin-next-week-btn">Siguiente &gt;</button>
+                        </div>
+                        <div id="records-accordion-container"></div>
+                    </div>
+                </div>
+
+                <div id="admin-page-corte" class="admin-page hidden">
+                    <h2>Generar Corte Semanal Comparativo</h2>
+                    <div id="cut-section-controls" class="cut-controls">
+                        <select id="cut-week-select"></select>
+                        <select id="cut-employee-select"></select>
+                        <button id="generate-cut-button" class="submit-btn">Generar Corte</button>
+                    </div>
+                    <div id="cut-report-output"></div>
+                </div>
+
+                <div id="admin-page-ajustes" class="admin-page hidden">
+                    <h2>Ajustes del Sistema</h2>
+                    <div id="ajustes-content">
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición de Registro -->
+<div id="editRecordModal" class="modal">
+    <div class="modal-content">
+        <h2>Editar Registro</h2>
+        <form id="edit-record-form">
+            <input type="hidden" id="edit-record-id">
+            <div id="edit-empleada-field" style="display:none;"><label for="edit-empleada">Empleada:</label><select id="edit-empleada" name="edit_empleada"></select></div>
+            <label for="edit-horas_servicio">Horas de Servicio:</label><input type="number" id="edit-horas_servicio" name="edit_horas_servicio" step="1" min="0">
+            <label for="edit-total_servicio">Total del Servicio:</label><input type="number" id="edit-total_servicio" name="edit_total_servicio" step="0.01">
+            <label>Método de Pago:</label>
+            <div class="payment-methods-row">
+                <div><input type="radio" id="edit-pago-efectivo" name="edit_metodo_pago" value="efectivo"><label for="edit-pago-efectivo">Efectivo</label></div>
+                <div><input type="radio" id="edit-pago-tarjeta" name="edit_metodo_pago" value="tarjeta"><label for="edit-pago-tarjeta">Tarjeta</label></div>
+                <div><input type="radio" id="edit-pago-mixto" name="edit_metodo_pago" value="mixto"><label for="edit-pago-mixto">Mixto</label></div>
+                <div><input type="radio" id="edit-pago-membresia" name="edit_metodo_pago" value="membresia"><label for="edit-pago-membresia">Membresía</label></div>
+            </div>
+            <div id="edit-membresia-field" style="display:none;"><label for="edit-membresia_id">Membresía:</label><select id="edit-membresia_id" name="edit_membresia_id"></select></div>
+            <div id="edit-monto-efectivo-field" style="display:none;"><label for="edit-monto_efectivo">Monto en Efectivo:</label><input type="number" id="edit-monto_efectivo" name="edit_monto_efectivo" step="0.01"></div>
+
+            <div id="edit-tarjeta-1-fields" style="display:none;">
+                <div id="edit-monto-tarjeta-field"><label for="edit-monto_tarjeta">Monto Tarjeta 1:</label><input type="number" id="edit-monto_tarjeta" name="edit_monto_tarjeta" step="0.01"></div>
+                <div id="edit-banco-field"><label for="edit-banco">Banco Tarjeta 1:</label><select id="edit-banco" name="edit_banco"></select></div>
+            </div>
+            <div id="edit-tarjeta-2-fields" style="display:none;">
+                <div id="edit-monto-tarjeta-2-field"><label for="edit-monto_tarjeta_2">Monto Tarjeta 2:</label><input type="number" id="edit-monto_tarjeta_2" name="edit_monto_tarjeta_2" step="0.01"></div>
+                <div id="edit-banco-2-field"><label for="edit-banco_2">Banco Tarjeta 2:</label><select id="edit-banco_2" name="edit_banco_2"></select></div>
+                <button type="button" class="remove-card-btn" data-prefix="edit-">Quitar Tarjeta</button>
+            </div>
+            <button type="button" id="edit-add-card-btn" class="add-card-btn" style="display:none;">Añadir otra tarjeta</button>
+
+            <label for="edit-extra">Extra:</label><input type="number" id="edit-extra" name="edit_extra" step="0.01">
+            <label for="edit-lugar">Lugar:</label><select id="edit-lugar" name="edit_lugar"></select>
+            <label for="edit-uber_ida">Uber Ida:</label><input type="number" id="edit-uber_ida" name="edit_uber_ida" step="0.01">
+            <label for="edit-chofer_ida">Chofer Ida:</label><select id="edit-chofer_ida" name="edit_chofer_ida"></select>
+            <label for="edit-uber_regreso">Uber Regreso:</label><input type="number" id="edit-uber_regreso" name="edit_uber_regreso" step="0.01">
+            <label for="edit-chofer_regreso">Chofer Regreso:</label><select id="edit-chofer_regreso" name="edit_chofer_regreso"></select>
+
+            <div class="checkbox-group">
+                <div><input type="checkbox" id="edit-cancelado" name="edit_cancelado"><label for="edit-cancelado">Servicio Cancelado</label></div>
+                <div><input type="checkbox" id="edit-promocion" name="edit_promocion"><label for="edit-promocion">Promoción</label></div>
+            </div>
+
+            <div id="edit-feedback-message"></div>
+            <div class="modal-buttons">
+                <button type="button" id="cancel-edit-btn" class="close-btn">Cancelar</button>
+                <button type="submit" class="save-btn">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>

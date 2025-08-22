@@ -1,0 +1,24 @@
+Estructura del Proyecto ColombiaSexysVentas
+ColombiaSexysVentas/
+│
+├── .github/                  # Carpeta para configuración de GitHub (ej. Despliegue automático)
+│   └── workflows/
+│       ├── firebase-hosting-merge.yml
+│       └── firebase-hosting-pull-request.yml
+│
+├── public/                   # <-- CARPETA PRINCIPAL Todo lo que ve el usuario está aquí.
+│   │
+│   ├── css/                  # Carpeta para los estilos visuales.
+│   │   └── style.css         # Hoja de estilos principal. Define colores, fuentes, etc.
+│   │
+│   ├── js/                   # Carpeta para toda la lógica de la aplicación.
+│   │   ├── firebase-config.js  # Configura y conecta la app con tu base de datos Firebase.
+│   │   ├── firestore-service.js # Contiene TODAS las funciones para hablar con la base de datos (leer, escribir, borrar).
+│   │   ├── main.js             # El "cerebro" de la app. Orquesta los otros archivos y maneja los eventos.
+│   │   └── ui.js               # Controla la interfaz. Muestra/oculta elementos, rellena listas, etc.
+│   │
+│   ├── index.html            # La estructura de la página web. El esqueleto de la aplicación.
+│   └── logo.png              # El logo que se muestra en la aplicación.
+│
+├── firebase.json             # Archivo de configuración de Firebase. Le dice qué carpeta desplegar (public).
+└── .firebaserc               # Archivo de configuración de Firebase. Vincula el proyecto con tu cuenta.

@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // === USUARIOS ===
+    match /usuarios/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && (
+        request.auth.uid == userId ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin')
+      );
+      allow update: if request.auth != null && (
+        request.auth.uid == userId ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin')
+      );
+      allow delete: if request.auth != null && (
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin' ||
+        request.auth.token.email == userId
+      );
+    }
+
+    // === MEMBRESIAS ===
+    match /membresias/{membresiaId} {
+      allow read: if request.auth != null;
+      allow create, delete: if request.auth != null &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+      allow update: if request.auth != null && (
+        (get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin') ||
+        (
+          get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'jefe' &&
+          request.resource.data.nombre == resource.data.nombre &&
+          request.resource.data.horas_totales == resource.data.horas_totales &&
+          request.resource.data.horas_restantes != resource.data.horas_restantes
+        )
+      );
+    }
+
+    // === OFICINAS Y CATÁLOGOS ===
+    match /oficinas/{docId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+    }
+    match /lugares/{docId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+    }
+    match /bancos/{docId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+    }
+    match /choferes/{docId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null &&
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+    }
+
+    // === REGISTROS ===
+    match /registros/{registroId} {
+      allow create: if request.auth != null;
+
+      // Un usuario puede LEER un registro si es el creador, la empleada del registro, o un admin.
+      allow read: if request.auth != null &&
+        (request.auth.uid == resource.data.uid_registrador ||
+         request.auth.uid == resource.data.uid_empleada ||
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+
+      // Un usuario puede EDITAR o BORRAR un registro solo si es el creador o un admin.
+      allow update, delete: if request.auth != null &&
+        (request.auth.uid == resource.data.uid_registrador ||
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin');
+    }
+  }
+}
